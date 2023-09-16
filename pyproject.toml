@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "fastapi-skeleton"
+name = "turtled-server"
 version = "0.1.0"
 description = ""
 authors = ["Minsoo <als95.dev@gmail.com>"]
 readme = "README.md"
-packages = [{include = "fastapi_skeleton"}]
+packages = [{include = "turtled_backend"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -32,7 +32,7 @@ jinja2 = "^3.1.2"
 websockets = "^11.0.3"
 
 [tool.taskipy.tasks]
-server = "uvicorn fastapi_skeleton.main:app --host 0.0.0.0 --port 8000 --reload"
+server = "uvicorn turtled_backend.main:app --host 0.0.0.0 --port 8000 --reload"
 test = "API_ENV=test python3 -m pytest tests --it"
 lint = "pylint --rcfile=.pylintrc --disable=R fastapi_skeleton"
 
