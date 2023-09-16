@@ -1,9 +1,9 @@
 import pytest
 
-from fastapi_skeleton.model.request.example import ExampleRequest
-from fastapi_skeleton.model.response.example import ExampleResponse
-from fastapi_skeleton.schema.example import Example
-from fastapi_skeleton.service.example import ExampleService
+from turtled_backend.model.request.example import ExampleRequest
+from turtled_backend.model.response.example import ExampleResponse
+from turtled_backend.schema.example import Example
+from turtled_backend.service.example import ExampleService
 
 
 @pytest.mark.describe("Test case for save example")

@@ -2,9 +2,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from fastapi_skeleton.repository.example import ExampleRepository
-from fastapi_skeleton.schema.example import Example
-from fastapi_skeleton.service.example import ExampleService
+from turtled_backend.repository.example import ExampleRepository
+from turtled_backend.schema.example import Example
+from turtled_backend.service.example import ExampleService
 
 
 @pytest.fixture

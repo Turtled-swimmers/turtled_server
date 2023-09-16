@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi_skeleton.repository.example import ExampleRepository
-from fastapi_skeleton.schema.example import Example
+from turtled_backend.repository.example import ExampleRepository
+from turtled_backend.schema.example import Example
 
 example_repository = ExampleRepository()
 

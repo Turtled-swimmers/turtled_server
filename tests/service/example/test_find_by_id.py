@@ -1,8 +1,8 @@
 import pytest
 
-from fastapi_skeleton.common.error.exception import NotFoundException, ErrorCode
-from fastapi_skeleton.schema.example import Example
-from fastapi_skeleton.service.example import ExampleService
+from turtled_backend.common.error.exception import NotFoundException, ErrorCode
+from turtled_backend.schema.example import Example
+from turtled_backend.service.example import ExampleService
 
 
 @pytest.mark.describe("Test case for find example by id")

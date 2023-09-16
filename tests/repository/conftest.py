@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture(scope="session", autouse=True)
 async def db():
-    from fastapi_skeleton.common.util.database import db
+    from turtled_backend.common.util.database import db
 
     asyncio.run(db.create_database())
 
