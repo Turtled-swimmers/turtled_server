@@ -24,6 +24,11 @@ poetry install
 poetry run task server
 ```
 
+### dev
+```bash
+poetry run task dev
+```
+
 ### test
 ```bash
 poetry run task test

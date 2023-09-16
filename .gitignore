@@ -10,3 +10,9 @@ poetry.lock
 .pytest_cache
 
 test.db
+
+
+env/*
+
+!env/config.yaml
+!env/config.test.yaml
