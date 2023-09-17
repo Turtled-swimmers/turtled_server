@@ -1,8 +1,9 @@
-from turtled_backend.common.util.repository import Repository
-from turtled_backend.schema.user import UserLoginInfo
+import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
-import asyncio
+
+from turtled_backend.common.util.repository import Repository
+from turtled_backend.schema.user import User
 
 
 async def test_return_200(is_true: bool):
@@ -10,7 +11,6 @@ async def test_return_200(is_true: bool):
     return 200 if is_true else 400
 
 
-class UserRepository(Repository[UserLoginInfo]):
-
+class UserRepository(Repository[User]):
     async def test_return_status(self, session: AsyncSession, is_true: bool):
         return await asyncio.create_task(test_return_200(is_true))

@@ -9,9 +9,7 @@ example_repository = ExampleRepository()
 
 @pytest.fixture(autouse=True)
 async def example_fixture(session: AsyncSession):
-    example = Example(
-        name="test"
-    )
+    example = Example(name="test")
 
     example = await example_repository.save(session, example)
     yield example

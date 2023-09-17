@@ -37,4 +37,6 @@ poetry run task test
 ### lint
 ```bash
 poetry run task lint
+poetry run black .
+poetry run isort .
 ```

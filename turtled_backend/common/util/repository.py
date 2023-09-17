@@ -1,9 +1,9 @@
-from typing import TypeVar, Generic, List
+from typing import Generic, List, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Repository(Generic[T]):

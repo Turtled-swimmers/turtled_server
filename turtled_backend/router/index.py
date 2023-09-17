@@ -1,7 +1,7 @@
 import asyncio
 from os import environ
 
-from fastapi import APIRouter, WebSocket, Request
+from fastapi import APIRouter, Request, WebSocket
 from starlette.templating import Jinja2Templates
 
 from turtled_backend.config.config import Config
@@ -25,10 +25,7 @@ async def log_reader(log_file_name: str, n=0):
                 log_lines += f'<span class="text-orange-300">{line}</span><br/>'
             else:
                 log_lines += f"{line}<br/>"
-        return {
-            "file_size": size,
-            "context": log_lines
-        }
+        return {"file_size": size, "context": log_lines}
 
 
 @router.websocket("/ws/log")
@@ -49,9 +46,5 @@ async def websocket_endpoint_log(websocket: WebSocket):
 
 @router.get("/log")
 async def get(request: Request):
-    context = {
-        "log_file": "info.log",
-        "env": environ.get("API_ENV"),
-        "domain": request.client.host
-    }
+    context = {"log_file": "info.log", "env": environ.get("API_ENV"), "domain": request.client.host}
     return templates.TemplateResponse("log.html", {"request": request, "context": context})

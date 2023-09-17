@@ -1,6 +1,6 @@
 import pytest
 
-from turtled_backend.common.error.exception import NotFoundException, ErrorCode
+from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 from turtled_backend.schema.example import Example
 from turtled_backend.service.example import ExampleService
 
@@ -9,12 +9,7 @@ from turtled_backend.service.example import ExampleService
 class TestExampleFindById(object):
     @pytest.mark.asyncio
     @pytest.mark.it("Success case")
-    async def test_find_example_by_id(
-            self,
-            mock_repo: dict,
-            example_service: ExampleService,
-            example_fixture: Example
-    ):
+    async def test_find_example_by_id(self, mock_repo: dict, example_service: ExampleService, example_fixture: Example):
         # given
         mock_repo["example"].find_by_id.side_effect = [example_fixture]
 
@@ -28,10 +23,7 @@ class TestExampleFindById(object):
     @pytest.mark.asyncio
     @pytest.mark.it("Fail case: example is not found")
     async def test_find_example_by_id_not_existing_example(
-            self,
-            mock_repo: dict,
-            example_service: ExampleService,
-            example_fixture: Example
+        self, mock_repo: dict, example_service: ExampleService, example_fixture: Example
     ):
         # given
         mock_repo["example"].find_by_id.side_effect = [None]

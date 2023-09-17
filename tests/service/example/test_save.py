@@ -10,18 +10,16 @@ from turtled_backend.service.example import ExampleService
 class TestSaveExample(object):
     @pytest.fixture
     async def example_request(self):
-        yield ExampleRequest(
-            name="test"
-        )
+        yield ExampleRequest(name="test")
 
     @pytest.mark.asyncio
     @pytest.mark.it("Success cases for saving example")
     async def test_save(
-            self,
-            mock_repo: dict,
-            example_service: ExampleService,
-            example_fixture: Example,
-            example_request: ExampleRequest
+        self,
+        mock_repo: dict,
+        example_service: ExampleService,
+        example_fixture: Example,
+        example_request: ExampleRequest,
     ):
         # given
         mock_repo["example"].save.side_effect = [example_fixture]

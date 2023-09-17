@@ -11,21 +11,14 @@ from turtled_backend.service.example import ExampleService
 def mock_repo():
     example_repository = AsyncMock(spec=ExampleRepository)
 
-    return {
-        "example": example_repository
-    }
+    return {"example": example_repository}
 
 
 @pytest.fixture
 def example_service(mock_repo: dict):
-    return ExampleService(
-        mock_repo["example"]
-    )
+    return ExampleService(mock_repo["example"])
 
 
 @pytest.fixture
 def example_fixture():
-    yield Example(
-        id=1,
-        name="test"
-    )
+    yield Example(id=1, name="test")

@@ -10,7 +10,7 @@ from turtled_backend.common.error.handler import add_http_exception_handler
 from turtled_backend.common.util.database import db
 from turtled_backend.config.config import Config
 from turtled_backend.container import Container
-from turtled_backend.router import example, index, user
+from turtled_backend.router import challenge, example, index, user
 
 nest_asyncio.apply()
 
@@ -28,15 +28,12 @@ def create_app() -> FastAPI:
 
     _app.include_router(index.router)
     _app.include_router(example.router, prefix=api_prefix + "/examples")
-    _app.include_router(user.router, prefix=api_prefix + "/user")
+    _app.include_router(user.router, prefix=api_prefix + "/users")
+    _app.include_router(challenge.router, prefix=api_prefix + "/challenges")
 
     """ Define Middleware """
     _app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"]
+        CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
     )
     _app.add_middleware(SessionMiddleware, secret_key=Config.SESSION_SECRET_KEY)
 
@@ -50,9 +47,9 @@ app = create_app()
 
 @app.on_event("startup")
 async def startup():
-    """ Initialize Database """
+    """Initialize Database"""
     asyncio.run(db.create_database())
 
 
 if __name__ == "__main__":
-    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

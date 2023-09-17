@@ -7,8 +7,14 @@ class UserLoginRequest(BaseModel):
 
 
 class UserSignUpRequest(BaseModel):
-    nickname: str
+    username: str
     email: str
     password: str
     checked_password: str
     device_token: str  # FCM device token
+
+
+class User(BaseModel):
+    id: str
+    username: str
+    email: str

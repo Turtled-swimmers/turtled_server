@@ -9,7 +9,4 @@ class ExampleResponse(BaseModel):
 
     @classmethod
     def from_entity(cls, entity: Example):
-        return cls(
-            id=entity.id,
-            name=entity.name
-        )
+        return cls(id=entity.id, name=entity.name)
