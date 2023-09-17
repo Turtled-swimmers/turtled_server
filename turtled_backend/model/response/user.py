@@ -15,3 +15,4 @@ class UserLoginResponse(BaseModel):
             token_type="Bearer",
             access_token="test_token"
         )
+
