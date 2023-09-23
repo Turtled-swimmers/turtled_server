@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.common.util.transaction import transactional
@@ -26,31 +26,33 @@ class ChallengeService:
         achievement_list = {"1234": True, "1235": False, "1236": False}
         return [ChallengeResponse.from_entity(medal, achievement_list[medal.id]) for medal in medal_list]
 
+    def get_dates_in_month(self, year: int, month: int):
+        # Initialize the start date for the given month
+        start_date = datetime(year, month, 1)
+
+        # Calculate the number of days in the month
+        next_month = start_date.replace(day=28) + timedelta(days=4)
+        last_day = (next_month - timedelta(days=next_month.day)).day
+
+        return int(last_day)
 
     @transactional(read_only=True)
-    async def get_monthly_history(self, session: AsyncSession, current_user: CurrentUser, current_month: str):
+    async def get_monthly_history(self, session: AsyncSession, time_filter: str):  # TODO: authenticate
 
-        year, month = current_month.split('-')
+        year_filter, month_filter = (int(_filter) for _filter in time_filter.split('-'))
         date_field = {}
 
-        def get_dates_in_month(year: int, month: int):
-            # Initialize the start date for the given month
-            start_date = datetime(year, month, 1)
+        first_date_of_month = date(year_filter, month_filter, 1)
 
-            # Calculate the number of days in the month
-            next_month = start_date.replace(day=28) + timedelta(days=4)
-            last_date = (next_month - timedelta(days=next_month.day)).day
+        end_day_of_month = self.get_dates_in_month(int(year_filter), int(month_filter))
+        end_date_of_month = date(year_filter, month_filter, end_day_of_month)
 
-            # Iterate through the month and yield dates in 'yyyy-mm-dd' format
-            current_date = start_date
-            while current_date.day <= last_date:
-                yield current_date.strftime('%Y-%m-%d')
-                current_date += timedelta(days=1)
+        # TODO: remove when test data is migrated to test db
+        current_date = first_date_of_month
+        for i in range(first_date_of_month.day, end_date_of_month.day+1):
+            date_field[current_date.strftime('%Y-%m-%d')] = False if current_date.day % 2 else True
+            current_date += timedelta(days=1)
 
-        for date_str in get_dates_in_month(int(year), int(month)):
-            if int(date_str.strftime('%d')) % 2:
-                date_field[date_str] = False
-            else: date_field[date_str] = False
+        return [CalendarEventResponse(calendar_date=calendar_date, has_event=has_event)
+                for calendar_date, has_event in date_field.items()]
 
-        monthly_event_list = CalenderList(month_and_year=current_month, date_field=date_field)
-        return [CalendarEventResponse.of()]

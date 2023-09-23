@@ -33,14 +33,17 @@ class UserUpdateHistory(Base): # to do : does this model needed?
 
 
 class CalenderList(Base):
+    id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
     month_and_year = Column(String(length=15), nullable=False)
     date_field = Column(JSON())
-
+   
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
     user = relationship("User", backref=backref("Center"))
 
 
 class CalenderDateRecord(Base):
+    id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
+
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
     repeat_time = Column(Integer, nullable=False)
