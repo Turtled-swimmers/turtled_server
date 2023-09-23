@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 from turtled_backend.schema.challenge import Medal
@@ -22,4 +24,16 @@ class ChallengeResponse(BaseModel):
             content=entity.content,
             requirement=entity.requirement,
             isAchieved=is_achieved,
+        )
+
+
+class CalendarEventResponse(BaseModel):
+    calendar_date: date
+    has_event: bool
+
+    @staticmethod
+    def of(calendar_date: date, has_event: bool):
+        return CalendarEventResponse(
+            calendar_date=calendar_date,
+            has_event=has_event
         )

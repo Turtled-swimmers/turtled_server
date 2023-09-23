@@ -1,4 +1,4 @@
-import uuid
+from ulid import ULID
 
 from fastapi import Request
 from starlette.concurrency import iterate_in_threadpool
@@ -23,7 +23,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         if request.url.path in ["/docs", "/redoc", "/openapi.json", "/log"]:
             return await call_next(request)
 
-        idem = "".join(str(uuid.uuid4()))
+        idem = "".join(str(ULID()))
         request_headers = dict(request.headers)
         logger.info("[%s] [REQUEST] [%s] path: %s", idem, request.method, request.url.path)
         if request_headers.get("content-type") is not None and not (

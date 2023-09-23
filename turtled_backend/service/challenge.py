@@ -1,13 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.common.util.transaction import transactional
-from turtled_backend.model.response.challenge import ChallengeResponse
+from turtled_backend.model.response.challenge import ChallengeResponse, CalendarEventResponse
 from turtled_backend.repository.challenge import (
     MedalRepository,
     UserChallengeRepository,
 )
-from turtled_backend.schema.challenge import Medal
+from turtled_backend.schema.challenge import Medal, CalenderList
 
 
 class ChallengeService:
@@ -24,3 +25,32 @@ class ChallengeService:
         ]
         achievement_list = {"1234": True, "1235": False, "1236": False}
         return [ChallengeResponse.from_entity(medal, achievement_list[medal.id]) for medal in medal_list]
+
+
+    @transactional(read_only=True)
+    async def get_monthly_history(self, session: AsyncSession, current_user: CurrentUser, current_month: str):
+
+        year, month = current_month.split('-')
+        date_field = {}
+
+        def get_dates_in_month(year: int, month: int):
+            # Initialize the start date for the given month
+            start_date = datetime(year, month, 1)
+
+            # Calculate the number of days in the month
+            next_month = start_date.replace(day=28) + timedelta(days=4)
+            last_date = (next_month - timedelta(days=next_month.day)).day
+
+            # Iterate through the month and yield dates in 'yyyy-mm-dd' format
+            current_date = start_date
+            while current_date.day <= last_date:
+                yield current_date.strftime('%Y-%m-%d')
+                current_date += timedelta(days=1)
+
+        for date_str in get_dates_in_month(int(year), int(month)):
+            if int(date_str.strftime('%d')) % 2:
+                date_field[date_str] = False
+            else: date_field[date_str] = False
+
+        monthly_event_list = CalenderList(month_and_year=current_month, date_field=date_field)
+        return [CalendarEventResponse.of()]
