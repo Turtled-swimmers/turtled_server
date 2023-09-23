@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, DateTime, MetaData
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, declared_attr, sessionmaker
 
@@ -23,6 +23,7 @@ class Database:
     def __init__(self, db_url: str) -> None:
         self._engine: AsyncEngine = create_async_engine(db_url, echo=True, pool_pre_ping=True)
         self.async_session_maker = sessionmaker(self._engine, class_=AsyncSession, expire_on_commit=False)
+        self.metadata: MetaData = MetaData()
 
     async def create_database(self) -> None:
         async with self._engine.begin() as conn:
@@ -33,6 +34,7 @@ class Database:
                 await conn.run_sync(Base.metadata.create_all)
             else:
                 await conn.run_sync(Base.metadata.create_all)
+            self.metadata = Base.metadata
 
 
 db = Database(db_url=Config.DATABASE_CONFIG.URL)
