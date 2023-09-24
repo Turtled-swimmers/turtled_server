@@ -20,10 +20,10 @@ class UserChallenge(Base):
     isAchieved = Column(Boolean, default=False, nullable=False)
 
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
-    user = relationship("User", backref=backref("Center"))
+    user = relationship("User", backref=backref("UserChallenge"))
 
     medal_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
-    medal = relationship("User", backref=backref("Center"))
+    medal = relationship("Medal", backref=backref("UserChallenge"))
 
 
 class UserUpdateHistory(Base): # to do : does this model needed?
@@ -36,9 +36,9 @@ class CalenderList(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
     month_and_year = Column(String(length=15), nullable=False)
     date_field = Column(JSON())
-   
+
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
-    user = relationship("User", backref=backref("Center"))
+    user = relationship("User", backref=backref("CalenderList"))
 
 
 class CalenderDateRecord(Base):
@@ -50,4 +50,4 @@ class CalenderDateRecord(Base):
     count = Column(Integer, nullable=False)
 
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
-    user = relationship("User", backref=backref("Center"))
+    user = relationship("User", backref=backref("CalenderDateRecord"))

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from ulid import ULID
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, ForeignKey, Boolean
+from sqlalchemy.orm import backref, relationship
 
 from turtled_backend.common.util.database import Base
 
@@ -13,4 +14,11 @@ class User(Base):
     email = Column(String(length=100))
     password = Column(String(length=100))
     deviceToken = Column(String(length=100))
-    disabled: bool | None = None
+    disabled = Column(Boolean, default=False, nullable=False)
+
+    medal_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
+    medal = relationship("Medal", backref=backref("User"))
+
+    is_notification_active = Column(Boolean, default=False, nullable=False)
+    update_version_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
+    update_version = relationship("App", backref=backref("User"))

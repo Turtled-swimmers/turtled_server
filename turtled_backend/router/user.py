@@ -4,7 +4,7 @@ from fastapi_utils.cbv import cbv
 
 from turtled_backend.container import Container
 from turtled_backend.model.request.user import UserLoginRequest, UserSignUpRequest
-from turtled_backend.model.response.user import UserLoginResponse
+from turtled_backend.model.response.user import UserLoginResponse, UserProfileResponse, UserProfileMedalResponse
 from turtled_backend.service.user import UserService
 
 router = APIRouter()
@@ -23,3 +23,11 @@ class ExampleRouter:
     @router.post("/signup")
     async def signup(self, req: UserSignUpRequest):
         return await self.user_service.signup(req)
+
+    @router.post("/profile", response_model=UserProfileResponse)
+    async def find_profile(self):
+        return await self.user_service.find_profile()
+
+    @router.post("/profile/medal", response_model=UserProfileMedalResponse)
+    async def find_profile_medal(self):
+        return await self.user_service.find_profile_medal()

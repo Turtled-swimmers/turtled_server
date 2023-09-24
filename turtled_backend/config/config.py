@@ -34,3 +34,4 @@ class Config:
     HTML_DIR = BASE_DIR + "/fastapi_skeleton/template"
 
     DATABASE_CONFIG: DatabaseConfig = DatabaseConfig()
+    SUPPORT_EMAIL_ACCOUNT = "dev.swimmers@gmail.com"

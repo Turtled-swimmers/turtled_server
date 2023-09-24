@@ -28,7 +28,7 @@ class ChallengeResponse(BaseModel):
 
 
 class CalendarEventResponse(BaseModel):
-    calendar_date: date
+    calendar_date: str
     has_event: bool
 
     @staticmethod
@@ -36,4 +36,20 @@ class CalendarEventResponse(BaseModel):
         return CalendarEventResponse(
             calendar_date=calendar_date,
             has_event=has_event
+        )
+
+
+class DateHistoryResponse(BaseModel):
+    timer_start_time: str
+    timer_end_time: str
+    repeat_cycle: int
+    count: int
+
+    @classmethod
+    def from_entity(cls, entity: dict):
+        return cls(
+            timer_start_time=entity["timer_start_time"],
+            timer_end_time=entity["timer_end_time"],
+            repeat_cycle=entity["repeat_cycle"],
+            count=entity["count"]
         )
