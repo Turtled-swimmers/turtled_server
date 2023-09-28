@@ -1,3 +1,5 @@
+from typing import Dict, Optional, List
+
 from pydantic import BaseModel
 
 from turtled_backend.schema.user import User
@@ -40,3 +42,10 @@ class UserProfileMedalResponse(BaseModel):
             title=title,
             image=image
         )
+
+
+class UserDeviceResponse(BaseModel):
+    id: int
+    user_id: int
+    token: str
+    device_info: Optional[Dict]

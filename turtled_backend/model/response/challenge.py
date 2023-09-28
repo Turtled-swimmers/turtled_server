@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Dict, Optional, List
 
 from pydantic import BaseModel
 
@@ -53,3 +54,14 @@ class DateHistoryResponse(BaseModel):
             repeat_cycle=entity["repeat_cycle"],
             count=entity["count"]
         )
+
+
+class ErrorResponse(BaseModel):
+    count: int = 0
+    errors: Optional[List[Dict]]
+
+
+class MessageResponse(BaseModel):
+    success_count: int
+    message: str
+    error: ErrorResponse

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.common.util.transaction import transactional
 from turtled_backend.model.response.challenge import ChallengeResponse, CalendarEventResponse, DateHistoryResponse
+from turtled_backend.model.request.challenge import MessageRequest
 from turtled_backend.repository.challenge import (
     MedalRepository,
     UserChallengeRepository,
@@ -73,3 +74,7 @@ class ChallengeService:
                       'repeat_cycle': 15, 'count': 5}]
 
         return [DateHistoryResponse.from_entity(data) for data in test_data]
+
+    @transactional(read_only=True)
+    async def send_message(self, message: MessageRequest):
+        pass

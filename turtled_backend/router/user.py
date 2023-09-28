@@ -3,15 +3,16 @@ from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
 from turtled_backend.container import Container
-from turtled_backend.model.request.user import UserLoginRequest, UserSignUpRequest
-from turtled_backend.model.response.user import UserLoginResponse, UserProfileResponse, UserProfileMedalResponse
+from turtled_backend.model.request.user import UserLoginRequest, UserSignUpRequest, UserDeviceRequest
+from turtled_backend.model.response.user import (UserLoginResponse, UserProfileResponse, UserProfileMedalResponse,
+                                                 UserDeviceResponse)
 from turtled_backend.service.user import UserService
 
 router = APIRouter()
 
 
 @cbv(router)
-class ExampleRouter:
+class UserRouter:
     @inject
     def __init__(self, user_service: UserService = Depends(Provide[Container.user_service])):
         self.user_service = user_service
@@ -31,3 +32,7 @@ class ExampleRouter:
     @router.post("/profile/medal", response_model=UserProfileMedalResponse)
     async def find_profile_medal(self):
         return await self.user_service.find_profile_medal()
+
+    @router.post("/register", response_model=UserDeviceResponse, status_code=201)
+    async def register_device(self, user_device: UserDeviceRequest):
+        return await self.user_service.register_device(user_device)

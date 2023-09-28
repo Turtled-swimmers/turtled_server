@@ -3,7 +3,8 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.util.repository import Repository
-from turtled_backend.schema.user import User
+from turtled_backend.schema.user import User, UserDevice
+from turtled_backend.model.request.user import UserDeviceRequest
 
 
 async def test_return_200(is_true: bool):
@@ -14,3 +15,8 @@ async def test_return_200(is_true: bool):
 class UserRepository(Repository[User]):
     async def test_return_status(self, session: AsyncSession, is_true: bool):
         return await asyncio.create_task(test_return_200(is_true))
+
+
+class UserDeviceRepository(Repository[UserDevice]):
+    async def save_or_update(self, session: AsyncSession, user_device: UserDeviceRequest):
+        pass

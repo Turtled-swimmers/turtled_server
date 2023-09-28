@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from pydantic import BaseModel
 
 
@@ -18,3 +20,9 @@ class User(BaseModel):
     id: str
     username: str
     email: str
+
+
+class UserDeviceRequest(BaseModel):
+    user_id: str
+    token: str
+    device_info: Optional[Dict]
