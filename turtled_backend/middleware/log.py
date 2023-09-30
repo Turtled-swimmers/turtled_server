@@ -1,10 +1,9 @@
-from ulid import ULID
-
 from fastapi import Request
 from starlette.concurrency import iterate_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response
 from starlette.types import Message
+from ulid import ULID
 
 from turtled_backend.config.log import logger
 

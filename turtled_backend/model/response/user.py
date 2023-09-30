@@ -1,9 +1,9 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
 from pydantic import BaseModel
 
-from turtled_backend.schema.user import User
 from turtled_backend.config.config import Config
+from turtled_backend.schema.user import User, UserDevice
 
 
 class UserLoginResponse(BaseModel):
@@ -28,7 +28,7 @@ class UserProfileResponse(BaseModel):
             username=entity["username"],
             email=entity["email"],
             update_version=entity["update_version"],
-            support_email=Config.SUPPORT_EMAIL_ACCOUNT
+            support_email=Config.SUPPORT_EMAIL_ACCOUNT,
         )
 
 
@@ -38,14 +38,18 @@ class UserProfileMedalResponse(BaseModel):
 
     @classmethod
     def from_entity(cls, title: str, image: str):
-        return cls(
-            title=title,
-            image=image
-        )
+        return cls(title=title, image=image)
 
 
 class UserDeviceResponse(BaseModel):
-    id: int
-    user_id: int
-    token: str
+    user_id: str
+    device_token: str
     device_info: Optional[Dict]
+
+    @classmethod
+    def from_entity(cls, entity: UserDevice):
+        return cls(
+            user_id=entity.user_id,
+            device_token=entity.device_token,
+            device_info={info: value for info, value in entity.device_info.items()},
+        )

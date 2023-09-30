@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from ulid import ULID
-
-from sqlalchemy import Column, String, ForeignKey, Boolean, JSON
+from sqlalchemy import JSON, Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
+from ulid import ULID
 
 from turtled_backend.common.util.database import Base
 
@@ -19,8 +18,6 @@ class User(Base):
     medal = relationship("Medal", backref=backref("User"))
 
     is_notification_active = Column(Boolean, default=False, nullable=False)
-    update_version_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
-    update_version = relationship("App", backref=backref("User"))
 
 
 class UserDevice(Base):
@@ -28,5 +25,8 @@ class UserDevice(Base):
     device_token = Column(String(length=255), nullable=False)
     device_info = Column(JSON(), nullable=True)
 
-    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
-    user = relationship("User", backref=backref("CalenderDateRecord"))
+    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="CASCADE"))
+    user = relationship("User", backref=backref("UserDevice"))
+
+    def update(self, device_token: str):
+        self.device_token = device_token

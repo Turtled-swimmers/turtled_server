@@ -1,11 +1,15 @@
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.common.util.transaction import transactional
-from turtled_backend.model.response.challenge import ChallengeResponse, CalendarEventResponse, DateHistoryResponse
 from turtled_backend.model.request.challenge import MessageRequest
+from turtled_backend.model.response.challenge import (
+    CalendarEventResponse,
+    ChallengeResponse,
+    DateHistoryResponse,
+)
 from turtled_backend.repository.challenge import (
     MedalRepository,
     UserChallengeRepository,
@@ -40,8 +44,7 @@ class ChallengeService:
 
     @transactional(read_only=True)
     async def get_monthly_history(self, session: AsyncSession, time_filter: str):  # TODO: authenticate
-
-        year_filter, month_filter = (int(_filter) for _filter in time_filter.split('-'))
+        year_filter, month_filter = (int(_filter) for _filter in time_filter.split("-"))
         date_field = {}
 
         first_date_of_month = date(year_filter, month_filter, 1)
@@ -51,27 +54,42 @@ class ChallengeService:
 
         # TODO: remove when test data is migrated to test db
         current_date = first_date_of_month
-        for _ in range(first_date_of_month.day, end_date_of_month.day+1):
-            date_field[current_date.strftime('%Y-%m-%d')] = False if current_date.day % 2 else True
+        for _ in range(first_date_of_month.day, end_date_of_month.day + 1):
+            date_field[current_date.strftime("%Y-%m-%d")] = False if current_date.day % 2 else True
             current_date += timedelta(days=1)
 
-        return [CalendarEventResponse(calendar_date=calendar_date, has_event=has_event)
-                for calendar_date, has_event in date_field.items()]
+        return [
+            CalendarEventResponse(calendar_date=calendar_date, has_event=has_event)
+            for calendar_date, has_event in date_field.items()
+        ]
 
     @transactional(read_only=True)
     async def get_date_history(self, session: AsyncSession, current_date: str):  # TODO: authenticate
-
         date_selection1 = datetime.strptime(current_date + " 00:00:00", "%Y-%m-%d %H:%M:%S")
         date_selection2 = datetime.strptime(current_date + " 01:00:00", "%Y-%m-%d %H:%M:%S")
         date_selection3 = datetime.strptime(current_date + " 02:00:00", "%Y-%m-%d %H:%M:%S")
         date_selection4 = datetime.strptime(current_date + " 03:00:00", "%Y-%m-%d %H:%M:%S")
 
-        test_data = [{'timer_start_time': str(date_selection1.time()), 'timer_end_time': str(date_selection2.time()),
-                      'repeat_cycle': 15, 'count': 5},
-                     {'timer_start_time': str(date_selection2.time()), 'timer_end_time': str(date_selection3.time()),
-                      'repeat_cycle': 15, 'count': 5},
-                     {'timer_start_time': str(date_selection3.time()), 'timer_end_time': str(date_selection4.time()),
-                      'repeat_cycle': 15, 'count': 5}]
+        test_data = [
+            {
+                "timer_start_time": str(date_selection1.time()),
+                "timer_end_time": str(date_selection2.time()),
+                "repeat_cycle": 15,
+                "count": 5,
+            },
+            {
+                "timer_start_time": str(date_selection2.time()),
+                "timer_end_time": str(date_selection3.time()),
+                "repeat_cycle": 15,
+                "count": 5,
+            },
+            {
+                "timer_start_time": str(date_selection3.time()),
+                "timer_end_time": str(date_selection4.time()),
+                "repeat_cycle": 15,
+                "count": 5,
+            },
+        ]
 
         return [DateHistoryResponse.from_entity(data) for data in test_data]
 

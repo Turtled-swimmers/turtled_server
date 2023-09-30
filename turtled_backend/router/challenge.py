@@ -7,8 +7,12 @@ from fastapi_utils.cbv import cbv
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
 from turtled_backend.model.request.challenge import MessageRequest
-from turtled_backend.model.response.challenge import (ChallengeResponse, CalendarEventResponse,
-                                                      DateHistoryResponse, MessageResponse)
+from turtled_backend.model.response.challenge import (
+    CalendarEventResponse,
+    ChallengeResponse,
+    DateHistoryResponse,
+    MessageResponse,
+)
 from turtled_backend.service.challenge import ChallengeService
 
 router = APIRouter()
@@ -21,8 +25,7 @@ class ChallengeRouter:
         self.challenge_service = challenge_service
 
     @router.get("/list", response_model=List[ChallengeResponse])
-    async def find_challenge_list(self,
-                                  current_user: CurrentUser):
+    async def find_challenge_list(self, current_user: CurrentUser):
         return await self.challenge_service.get_list(current_user)
 
     @router.get("/history/{time_filter}", response_model=List[CalendarEventResponse])

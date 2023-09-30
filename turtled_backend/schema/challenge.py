@@ -1,7 +1,6 @@
-from ulid import ULID
-
-from sqlalchemy import Boolean, Column, ForeignKey, String, JSON, Date, Integer, DateTime
+from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import backref, relationship
+from ulid import ULID
 
 from turtled_backend.common.util.database import Base
 

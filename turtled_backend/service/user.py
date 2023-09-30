@@ -1,19 +1,25 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.util.transaction import transactional
-from turtled_backend.model.request.user import UserLoginRequest, UserSignUpRequest
-from turtled_backend.model.response.user import UserLoginResponse, UserProfileResponse, UserProfileMedalResponse
-from turtled_backend.repository.user import UserRepository, UserDeviceRepository
-from turtled_backend.model.request.user import UserDeviceRequest
+from turtled_backend.model.request.user import (
+    UserDeviceRequest,
+    UserLoginRequest,
+    UserSignUpRequest,
+)
+from turtled_backend.model.response.user import (
+    UserDeviceResponse,
+    UserLoginResponse,
+    UserProfileMedalResponse,
+    UserProfileResponse,
+)
+from turtled_backend.repository.user import UserDeviceRepository, UserRepository
+from turtled_backend.schema.user import UserDevice
 
 
 class UserService:
-    def __init__(self,
-                 user_repository: UserRepository,
-                 user_device_repository: UserDeviceRepository):
+    def __init__(self, user_repository: UserRepository, user_device_repository: UserDeviceRepository):
         self.user_repository = user_repository
         self.user_device_repository = user_device_repository
-
 
     @transactional(read_only=True)
     async def login(self, session: AsyncSession, req: UserLoginRequest):
@@ -32,21 +38,28 @@ class UserService:
     @transactional(read_only=True)
     async def find_profile(self, session: AsyncSession):
         # find user profile information
-        test_user_data = {
-            "username": "Swimmers",
-            "email": "turtled_test_user@gmail.com",
-            "update_version": "0.0.1"
-        }
+        test_user_data = {"username": "Swimmers", "email": "turtled_test_user@gmail.com", "update_version": "0.0.1"}
         return UserProfileResponse.from_entity(test_user_data)
 
     @transactional(read_only=True)
     async def find_profile_medal(self, session: AsyncSession):
         # find user's latest gained medal information
-        return UserProfileMedalResponse(
-            title="성실 거북",
-            image="s3://turtled-s3-bucket/medals/hello_turtle.png"
-        )
+        return UserProfileMedalResponse(title="성실 거북", image="s3://turtled-s3-bucket/medals/hello_turtle.png")
 
     @transactional()
     async def register_device(self, session: AsyncSession, user_device: UserDeviceRequest):
-        return await self.user_device_repository.save_or_update(session, user_device)
+        # register device token for FCM service
+        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_info(
+            session, user_device.user_id, user_device.device_info
+        )
+        if saved_user_device is None:
+            saved_user_device = await self.user_device_repository.save(
+                session,
+                UserDevice(
+                    device_token=user_device.token, device_info=user_device.device_info, user_id=user_device.user_id
+                ),
+            )
+        else:
+            saved_user_device.update(user_device.token)
+
+        return UserDeviceResponse.from_entity(saved_user_device)

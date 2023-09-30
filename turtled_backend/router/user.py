@@ -3,9 +3,17 @@ from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
 from turtled_backend.container import Container
-from turtled_backend.model.request.user import UserLoginRequest, UserSignUpRequest, UserDeviceRequest
-from turtled_backend.model.response.user import (UserLoginResponse, UserProfileResponse, UserProfileMedalResponse,
-                                                 UserDeviceResponse)
+from turtled_backend.model.request.user import (
+    UserDeviceRequest,
+    UserLoginRequest,
+    UserSignUpRequest,
+)
+from turtled_backend.model.response.user import (
+    UserDeviceResponse,
+    UserLoginResponse,
+    UserProfileMedalResponse,
+    UserProfileResponse,
+)
 from turtled_backend.service.user import UserService
 
 router = APIRouter()

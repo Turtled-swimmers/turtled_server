@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -34,10 +34,7 @@ class CalendarEventResponse(BaseModel):
 
     @staticmethod
     def of(calendar_date: date, has_event: bool):
-        return CalendarEventResponse(
-            calendar_date=calendar_date,
-            has_event=has_event
-        )
+        return CalendarEventResponse(calendar_date=calendar_date, has_event=has_event)
 
 
 class DateHistoryResponse(BaseModel):
@@ -52,7 +49,7 @@ class DateHistoryResponse(BaseModel):
             timer_start_time=entity["timer_start_time"],
             timer_end_time=entity["timer_end_time"],
             repeat_cycle=entity["repeat_cycle"],
-            count=entity["count"]
+            count=entity["count"],
         )
 
 
