@@ -31,7 +31,8 @@ class Config:
     ALLOW_SITE = ["*"]
     SESSION_SECRET_KEY = config.get_by_key("security", {}).get_by_key("session", {}).get_by_key("secret-key", "")
     BASE_DIR = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    HTML_DIR = BASE_DIR + "/fastapi_skeleton/template"
+    HTML_DIR = BASE_DIR + "/turtled_backend/template"
 
     DATABASE_CONFIG: DatabaseConfig = DatabaseConfig()
     SUPPORT_EMAIL_ACCOUNT = "dev.swimmers@gmail.com"
+    MESSAGING_CREDENTIAL_PATH = BASE_DIR + "/env/serviceAccountKey.json"

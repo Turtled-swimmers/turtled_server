@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import JSON, Boolean, Column, ForeignKey, String
+from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
 from ulid import ULID
 
@@ -23,7 +23,7 @@ class User(Base):
 class UserDevice(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
     device_token = Column(String(length=255), nullable=False)
-    device_info = Column(JSON(), nullable=True)
+    device_uuid = Column(String(length=255), nullable=True)
 
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="CASCADE"))
     user = relationship("User", backref=backref("UserDevice"))

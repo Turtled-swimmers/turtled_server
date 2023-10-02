@@ -1,5 +1,3 @@
-from typing import Dict, Optional
-
 from pydantic import BaseModel
 
 
@@ -25,4 +23,4 @@ class User(BaseModel):
 class UserDeviceRequest(BaseModel):
     user_id: str
     token: str
-    device_info: Optional[Dict]
+    device_uuid: str

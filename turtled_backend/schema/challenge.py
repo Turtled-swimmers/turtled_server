@@ -39,7 +39,7 @@ class CalenderDateRecord(Base):
 
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
-    repeat_time = Column(Integer, nullable=False)
+    repeat_cycle = Column(Integer, nullable=False)
     count = Column(Integer, nullable=False)
 
     user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))

@@ -7,8 +7,7 @@ forked fastapi-skeleton from https://github.com/als95/fastapi-skeleton
 
 upload image to docker for local environment
 ```bash
-docker-compose -f docker-compose.yml up -d
-```
+c```
 
 install dependencies of this project
 ```bash

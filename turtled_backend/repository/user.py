@@ -1,7 +1,7 @@
 import asyncio
-from typing import Dict, Optional
+from typing import Optional
 
-from sqlalchemy import String, and_, select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.util.repository import Repository
@@ -19,13 +19,16 @@ class UserRepository(Repository[User]):
 
 
 class UserDeviceRepository(Repository[UserDevice]):
-    async def find_by_user_id_and_device_info(self, session: AsyncSession, user_id: str, device_info: Optional[Dict]):
+    async def find_by_user_id(self, session: AsyncSession, user_id: str):
+        result = await session.execute(select(UserDevice.device_token).where(UserDevice.user_id == user_id))
+        return result.scalars().all()
+
+    async def find_by_user_id_and_device_uuid(self, session: AsyncSession, user_id: str, device_uuid: Optional[str]):
         result = await session.execute(
             select(UserDevice).where(
                 and_(
                     UserDevice.user_id == user_id,
-                    UserDevice.device_info["device_type"].cast(String) == device_info["device_type"],
-                    UserDevice.device_info["ip"].cast(String) == device_info["ip"],
+                    UserDevice.device_uuid == device_uuid,
                 )
             )
         )

@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -44,12 +44,12 @@ class UserProfileMedalResponse(BaseModel):
 class UserDeviceResponse(BaseModel):
     user_id: str
     device_token: str
-    device_info: Optional[Dict]
+    device_uuid: Optional[str]
 
     @classmethod
     def from_entity(cls, entity: UserDevice):
         return cls(
             user_id=entity.user_id,
             device_token=entity.device_token,
-            device_info={info: value for info, value in entity.device_info.items()},
+            device_uuid=entity.device_uuid,
         )

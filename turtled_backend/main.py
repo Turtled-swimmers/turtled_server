@@ -8,9 +8,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from turtled_backend.common.error.handler import add_http_exception_handler
 from turtled_backend.common.util.database import db
+from turtled_backend.common.util.firebase import firebase_manager
 from turtled_backend.config.config import Config
 from turtled_backend.container import Container
-from turtled_backend.router import challenge, example, index, user
+from turtled_backend.router import challenge, example, index, timer, user
 
 nest_asyncio.apply()
 
@@ -30,6 +31,7 @@ def create_app() -> FastAPI:
     _app.include_router(example.router, prefix=api_prefix + "/examples")
     _app.include_router(user.router, prefix=api_prefix + "/users")
     _app.include_router(challenge.router, prefix=api_prefix + "/challenges")
+    _app.include_router(timer.router, prefix=api_prefix + "/timers")
 
     """ Define Middleware """
     _app.add_middleware(
@@ -49,6 +51,8 @@ app = create_app()
 async def startup():
     """Initialize Database"""
     asyncio.run(db.create_database())
+    """Initialize Firebase"""
+    firebase_manager.init()
 
 
 if __name__ == "__main__":

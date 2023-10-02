@@ -49,14 +49,14 @@ class UserService:
     @transactional()
     async def register_device(self, session: AsyncSession, user_device: UserDeviceRequest):
         # register device token for FCM service
-        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_info(
-            session, user_device.user_id, user_device.device_info
+        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_uuid(
+            session, user_device.user_id, user_device.device_uuid
         )
         if saved_user_device is None:
             saved_user_device = await self.user_device_repository.save(
                 session,
                 UserDevice(
-                    device_token=user_device.token, device_info=user_device.device_info, user_id=user_device.user_id
+                    device_token=user_device.token, device_uuid=user_device.device_uuid, user_id=user_device.user_id
                 ),
             )
         else:
