@@ -1,5 +1,8 @@
+from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.common.util.transaction import transactional
 from turtled_backend.model.request.user import (
     UserDeviceRequest,
@@ -47,17 +50,17 @@ class UserService:
         return UserProfileMedalResponse(title="성실 거북", image="s3://turtled-s3-bucket/medals/hello_turtle.png")
 
     @transactional()
-    async def register_device(self, session: AsyncSession, user_device: UserDeviceRequest):
+    async def register_device(
+        self, session: AsyncSession, subject: Optional[CurrentUser], user_device: UserDeviceRequest
+    ):
         # register device token for FCM service
-        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_uuid(
-            session, user_device.user_id, user_device.device_uuid
+        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_token(
+            session, subject.id, user_device.token
         )
         if saved_user_device is None:
             saved_user_device = await self.user_device_repository.save(
                 session,
-                UserDevice(
-                    device_token=user_device.token, device_uuid=user_device.device_uuid, user_id=user_device.user_id
-                ),
+                UserDevice.of(device_token=user_device.token, user_id=subject.id),
             )
         else:
             saved_user_device.update(user_device.token)

@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import backref, relationship
 from ulid import ULID
@@ -34,13 +36,21 @@ class CalenderList(Base):
     user = relationship("User", backref=backref("CalenderList"))
 
 
-class CalenderDateRecord(Base):
+class ChallengeRecord(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
 
     start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime)
     repeat_cycle = Column(Integer, nullable=False)
-    count = Column(Integer, nullable=False)
+    count = Column(Integer, nullable=False, default=0)
 
-    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
-    user = relationship("User", backref=backref("CalenderDateRecord"))
+    device_id = Column(String(length=255), ForeignKey("tb_user_device.id", ondelete="SET NULL"))
+    device = relationship("UserDevice", backref=backref("ChallengeRecord"))
+
+    @staticmethod
+    def of(start_time: datetime, repeat_cycle: int, device_id: str):
+        return ChallengeRecord(start_time=start_time, repeat_cycle=repeat_cycle, device_id=device_id)
+
+    def update(self, count: int, end_time: datetime):
+        self.count = count
+        self.end_time = end_time

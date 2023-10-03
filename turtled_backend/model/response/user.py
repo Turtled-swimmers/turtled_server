@@ -42,14 +42,9 @@ class UserProfileMedalResponse(BaseModel):
 
 
 class UserDeviceResponse(BaseModel):
-    user_id: str
+    user_id: Optional[str]
     device_token: str
-    device_uuid: Optional[str]
 
     @classmethod
     def from_entity(cls, entity: UserDevice):
-        return cls(
-            user_id=entity.user_id,
-            device_token=entity.device_token,
-            device_uuid=entity.device_uuid,
-        )
+        return cls(user_id=entity.user_id, device_token=entity.device_token)

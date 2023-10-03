@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Callable, Optional
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -12,9 +12,20 @@ def fake_decode_token(token):
     return User(id="010101", username=token + "fakedecoded", email="testuser@example.com")
 
 
+def get_current_user_authorizer(*, required: bool = False) -> Callable:
+    return get_current_user if required else get_current_user_optional
+
+
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     current_user = fake_decode_token(token)
     return current_user
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
+async def get_current_user_optional(token: Annotated[str, Depends(oauth2_scheme)]) -> Optional[User]:
+    # Log-in user with a member ID or non-member order.
+    if token:
+        return await get_current_user(token)
+    return None
+
+
+CurrentUser = Annotated[User, Depends(get_current_user_authorizer)]

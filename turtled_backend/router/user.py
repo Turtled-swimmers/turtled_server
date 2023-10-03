@@ -1,7 +1,10 @@
+from typing import Optional
+
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
 from turtled_backend.model.request.user import (
     UserDeviceRequest,
@@ -42,5 +45,5 @@ class UserRouter:
         return await self.user_service.find_profile_medal()
 
     @router.post("/register", response_model=UserDeviceResponse, status_code=201)
-    async def register_device(self, user_device: UserDeviceRequest):
-        return await self.user_service.register_device(user_device)
+    async def register_device(self, subject: Optional[CurrentUser], user_device: UserDeviceRequest):
+        return await self.user_service.register_device(subject, user_device)

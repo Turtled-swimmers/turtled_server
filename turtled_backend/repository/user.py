@@ -19,16 +19,20 @@ class UserRepository(Repository[User]):
 
 
 class UserDeviceRepository(Repository[UserDevice]):
+    async def find_by_device_token(self, session: AsyncSession, device_token: str):
+        result = await session.execute(select(UserDevice).where(UserDevice.device_token == device_token))
+        return result.scalars().one_or_none()
+
     async def find_by_user_id(self, session: AsyncSession, user_id: str):
         result = await session.execute(select(UserDevice.device_token).where(UserDevice.user_id == user_id))
         return result.scalars().all()
 
-    async def find_by_user_id_and_device_uuid(self, session: AsyncSession, user_id: str, device_uuid: Optional[str]):
+    async def find_by_user_id_and_device_token(self, session: AsyncSession, user_id: Optional[str], device_token: str):
         result = await session.execute(
             select(UserDevice).where(
                 and_(
                     UserDevice.user_id == user_id,
-                    UserDevice.device_uuid == device_uuid,
+                    UserDevice.device_token == device_token,
                 )
             )
         )

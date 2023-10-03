@@ -23,4 +23,3 @@ class User(BaseModel):
 class UserDeviceRequest(BaseModel):
     user_id: str
     token: str
-    device_uuid: str

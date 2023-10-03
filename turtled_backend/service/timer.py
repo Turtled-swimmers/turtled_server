@@ -5,25 +5,60 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 from turtled_backend.common.util.firebase import firebase_manager
 from turtled_backend.common.util.transaction import transactional
-from turtled_backend.model.request.timer import MessageRequest
+from turtled_backend.model.request.timer import (
+    MessageRequest,
+    TimerEndRequest,
+    TimerStartRequest,
+)
 from turtled_backend.model.response.timer import ErrorResponse, MessageResponse
+from turtled_backend.repository.challenge import ChallengeRecordRepository
 from turtled_backend.repository.user import UserDeviceRepository
+from turtled_backend.schema.challenge import ChallengeRecord
 
 
 class TimerService:
-    def __init__(self, user_device_repository: UserDeviceRepository):
+    def __init__(
+        self, user_device_repository: UserDeviceRepository, challenge_record_repository: ChallengeRecordRepository
+    ):
         self.user_device_repository = user_device_repository
+        self.challenge_record_repository = challenge_record_repository
+
+    @transactional()
+    async def start_timer(self, session: AsyncSession, request: TimerStartRequest):
+        user_device = await self.user_device_repository.find_by_device_token(session, request.device_token)
+
+        if user_device is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User's device token is not registered.")
+
+        return await self.challenge_record_repository.save(
+            session,
+            ChallengeRecord.of(
+                start_time=request.start_time, repeat_cycle=request.repeat_cycle, device_id=user_device.id
+            ),
+        )
+
+    @transactional()
+    async def end_timer(self, session: AsyncSession, request: TimerEndRequest):
+        user_device = await self.user_device_repository.find_by_device_token(session, request.device_token)
+
+        if user_device is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User's device token is not registered.")
+
+        challenge_record = await self.challenge_record_repository.find_recent_one_by_device_token(
+            session, user_device.id
+        )
+        challenge_record.update(challenge_record.count, request.end_time)
 
     @transactional(read_only=True)
     async def send_message(self, session: AsyncSession, message: MessageRequest):
-        tokens = await self.user_device_repository.find_by_user_id(session, message.user_id)
-        if len(tokens) == 0:
+        user_device = await self.user_device_repository.find_by_device_token(session, message.device_token)
+        if user_device is None:
             raise NotFoundException(
                 ErrorCode.DATA_DOES_NOT_EXIST, f"user id {message.user_id} don't have any registered device(s)"
             )
 
         batch_response = firebase_manager.send(
-            message.message, message.notify.get("title"), message.notify.get("body"), tokens
+            message.message, message.notify.get("title"), message.notify.get("body"), [user_device.device_token]
         )
         errors_lst = []
         for v in batch_response.responses:

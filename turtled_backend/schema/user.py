@@ -23,10 +23,13 @@ class User(Base):
 class UserDevice(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
     device_token = Column(String(length=255), nullable=False)
-    device_uuid = Column(String(length=255), nullable=True)
 
-    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="CASCADE"))
+    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
     user = relationship("User", backref=backref("UserDevice"))
+
+    @staticmethod
+    def of(user_id: str, device_token: str):
+        return UserDevice(user_id=user_id, device_token=device_token)
 
     def update(self, device_token: str):
         self.device_token = device_token

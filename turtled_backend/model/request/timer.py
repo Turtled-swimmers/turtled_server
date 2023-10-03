@@ -4,12 +4,17 @@ from pydantic import BaseModel
 
 
 class MessageRequest(BaseModel):
-    user_id: str
     message: str
     notify: Dict
-    device_uuid: str
+    device_token: str
 
 
-class TimerRequest(BaseModel):
-    repeat_period: str
-    timer_start_time: str
+class TimerStartRequest(BaseModel):
+    device_token: str
+    repeat_cycle: int
+    start_time: str
+
+
+class TimerEndRequest(BaseModel):
+    device_token: str
+    end_time: str
