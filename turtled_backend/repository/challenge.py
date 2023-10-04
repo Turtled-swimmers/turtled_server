@@ -20,4 +20,4 @@ class ChallengeRecordRepository(Repository[ChallengeRecord]):
             .where(ChallengeRecord.device_id == device_id)
             .order_by(desc(ChallengeRecord.start_time))
         )
-        return result.first()
+        return result.scalars().first()

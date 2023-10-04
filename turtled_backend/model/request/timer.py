@@ -1,11 +1,16 @@
 from typing import Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
+
+class Notify:
+    def __init__(self, title: str, body: str):
+        self.title = title
+        self.body = title
 
 class MessageRequest(BaseModel):
     message: str
-    notify: Dict
+    notify: Dict[str, str] = {"title": "", "body": ""}
     device_token: str
 
 

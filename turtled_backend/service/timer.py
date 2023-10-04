@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,11 +30,12 @@ class TimerService:
 
         if user_device is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User's device token is not registered.")
-
         return await self.challenge_record_repository.save(
             session,
             ChallengeRecord.of(
-                start_time=request.start_time, repeat_cycle=request.repeat_cycle, device_id=user_device.id
+                start_time=datetime.strptime(request.start_time, '%Y-%m-%d %H:%M:%S'),
+                repeat_cycle=request.repeat_cycle,
+                device_id=user_device.id
             ),
         )
 
@@ -47,7 +49,11 @@ class TimerService:
         challenge_record = await self.challenge_record_repository.find_recent_one_by_device_token(
             session, user_device.id
         )
-        challenge_record.update(challenge_record.count, request.end_time)
+
+        if challenge_record is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Timer has not been started.")
+
+        challenge_record.update(challenge_record.count, datetime.strptime(request.end_time, '%Y-%m-%d %H:%M:%S'))
 
     @transactional(read_only=True)
     async def send_message(self, session: AsyncSession, message: MessageRequest):

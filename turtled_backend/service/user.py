@@ -54,15 +54,22 @@ class UserService:
         self, session: AsyncSession, subject: Optional[CurrentUser], user_device: UserDeviceRequest
     ):
         # register device token for FCM service
-        saved_user_device = await self.user_device_repository.find_by_user_id_and_device_token(
-            session, subject.id, user_device.token
+        user = None
+        if subject is not None:
+            if subject.id is not None:
+                user = await self.user_repository.find_by_id(session, subject.id)
+
+        # Verify to FCM server, that the device_token is real
+
+        saved_user_device = await self.user_device_repository.find_by_device_token(
+            session, user_device.token
         )
         if saved_user_device is None:
             saved_user_device = await self.user_device_repository.save(
                 session,
-                UserDevice.of(device_token=user_device.token, user_id=subject.id),
+                UserDevice.of(device_token=user_device.token, user_id=user.id if user else None),
             )
         else:
-            saved_user_device.update(user_device.token)
+            saved_user_device.update(user_device.token, user_id=user.id if user else None)
 
         return UserDeviceResponse.from_entity(saved_user_device)
