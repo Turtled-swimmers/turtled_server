@@ -1,12 +1,13 @@
 from typing import Dict
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 
 
 class Notify:
     def __init__(self, title: str, body: str):
         self.title = title
-        self.body = title
+        self.body = body
+
 
 class MessageRequest(BaseModel):
     message: str

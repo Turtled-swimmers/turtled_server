@@ -7,7 +7,7 @@ from turtled_backend.schema.user import User, UserDevice
 
 
 class UserLoginResponse(BaseModel):
-    username: str
+    email: str
     token_type: str
     access_token: str
 

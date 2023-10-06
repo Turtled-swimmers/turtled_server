@@ -33,9 +33,9 @@ class TimerService:
         return await self.challenge_record_repository.save(
             session,
             ChallengeRecord.of(
-                start_time=datetime.strptime(request.start_time, '%Y-%m-%d %H:%M:%S'),
+                start_time=datetime.strptime(request.start_time, "%Y-%m-%d %H:%M:%S"),
                 repeat_cycle=request.repeat_cycle,
-                device_id=user_device.id
+                device_id=user_device.id,
             ),
         )
 
@@ -53,7 +53,7 @@ class TimerService:
         if challenge_record is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Timer has not been started.")
 
-        challenge_record.update(challenge_record.count, datetime.strptime(request.end_time, '%Y-%m-%d %H:%M:%S'))
+        challenge_record.update(challenge_record.count, datetime.strptime(request.end_time, "%Y-%m-%d %H:%M:%S"))
 
     @transactional(read_only=True)
     async def send_message(self, session: AsyncSession, message: MessageRequest):

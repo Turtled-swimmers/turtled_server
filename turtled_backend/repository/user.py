@@ -1,4 +1,3 @@
-import asyncio
 from typing import Optional
 
 from sqlalchemy import and_, select
@@ -8,14 +7,10 @@ from turtled_backend.common.util.repository import Repository
 from turtled_backend.schema.user import User, UserDevice
 
 
-async def test_return_200(is_true: bool):
-    # coroutine that returns a value
-    return 200 if is_true else 400
-
-
 class UserRepository(Repository[User]):
-    async def test_return_status(self, session: AsyncSession, is_true: bool):
-        return await asyncio.create_task(test_return_200(is_true))
+    async def find_by_email(self, session: AsyncSession, email: str):
+        result = await session.execute(select(User).where(User.email == email))
+        return result.scalars().one_or_none()
 
 
 class UserDeviceRepository(Repository[UserDevice]):

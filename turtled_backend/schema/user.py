@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional
 
 from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
@@ -10,15 +9,23 @@ from turtled_backend.common.util.database import Base
 
 class User(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
-    username = Column(String(length=100))
-    email = Column(String(length=100))
-    password = Column(String(length=100))
+    username = Column(String(length=100), unique=True, nullable=False)
+    email = Column(String(length=100), unique=True, nullable=False)
+    password = Column(String(length=100), nullable=False)
     disabled = Column(Boolean, default=False, nullable=False)
 
-    medal_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"), nullable=True)
+    medal_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
     medal = relationship("Medal", backref=backref("User"))
 
-    is_notification_active = Column(Boolean, default=False, nullable=False)
+    is_notification_active = Column(Boolean, default=False)
+
+    @staticmethod
+    def of(username: str, email: str, password: str):
+        return User(
+            username=username,
+            email=email,
+            password=password,
+        )
 
 
 class UserDevice(Base):

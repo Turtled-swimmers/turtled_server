@@ -2,7 +2,8 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from turtled_backend.common.util.auth import CurrentUser
+from turtled_backend.common.error.exception import ErrorCode, NotFoundException
+from turtled_backend.common.util.auth import CurrentUser, pwd_context
 from turtled_backend.common.util.transaction import transactional
 from turtled_backend.model.request.user import (
     UserDeviceRequest,
@@ -16,7 +17,7 @@ from turtled_backend.model.response.user import (
     UserProfileResponse,
 )
 from turtled_backend.repository.user import UserDeviceRepository, UserRepository
-from turtled_backend.schema.user import UserDevice
+from turtled_backend.schema.user import User, UserDevice
 
 
 class UserService:
@@ -26,17 +27,21 @@ class UserService:
 
     @transactional(read_only=True)
     async def login(self, session: AsyncSession, req: UserLoginRequest):
-        # example = await self.user_repository.save(session, UserLoginRequest(**req.dict()))
-        # JWT token exchange
+        user = self.user_repository.find_by_email(session, req.email)
+        if user is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+
         return UserLoginResponse.from_entity(req)
 
     @transactional()
     async def signup(self, session: AsyncSession, req: UserSignUpRequest):
-        # check user is newbie, and  signup user
-        is_true = True
-        if req.password != req.checked_password:
-            is_true = False
-        return await self.user_repository.test_return_status(session, is_true)
+        user = self.user_repository.find_by_email(session, req.email)
+        if user is not None:
+            raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
+
+        return await self.user_repository.save(
+            session, User.of(req.username, req.email, pwd_context.hash(req.password))
+        )
 
     @transactional(read_only=True)
     async def find_profile(self, session: AsyncSession):
@@ -61,9 +66,7 @@ class UserService:
 
         # Verify to FCM server, that the device_token is real
 
-        saved_user_device = await self.user_device_repository.find_by_device_token(
-            session, user_device.token
-        )
+        saved_user_device = await self.user_device_repository.find_by_device_token(session, user_device.token)
         if saved_user_device is None:
             saved_user_device = await self.user_device_repository.save(
                 session,
