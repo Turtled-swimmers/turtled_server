@@ -9,7 +9,7 @@ from turtled_backend.common.util.database import Base
 
 class User(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
-    username = Column(String(length=100), unique=True, nullable=False)
+    username = Column(String(length=100), nullable=False)
     email = Column(String(length=100), unique=True, nullable=False)
     password = Column(String(length=100), nullable=False)
     disabled = Column(Boolean, default=False, nullable=False)

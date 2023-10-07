@@ -1,15 +1,17 @@
+import json
+from datetime import datetime, timedelta
 from typing import Optional
 
+from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 from turtled_backend.common.util.auth import CurrentUser, pwd_context
 from turtled_backend.common.util.transaction import transactional
-from turtled_backend.model.request.user import (
-    UserDeviceRequest,
-    UserLoginRequest,
-    UserSignUpRequest,
-)
+from turtled_backend.config.config import Config
+from turtled_backend.model.request.user import UserDeviceRequest, UserSignUpRequest
 from turtled_backend.model.response.user import (
     UserDeviceResponse,
     UserLoginResponse,
@@ -26,12 +28,27 @@ class UserService:
         self.user_device_repository = user_device_repository
 
     @transactional(read_only=True)
-    async def login(self, session: AsyncSession, req: UserLoginRequest):
-        user = self.user_repository.find_by_email(session, req.email)
+    async def login(self, session: AsyncSession, form_data: OAuth2PasswordRequestForm):
+        with open(Config.SECRET_KEY_PATH, encoding="utf-8") as f:
+            jwt_secret_key = json.load(f)
+
+        # check user and password
+        user = await self.user_repository.find_by_email(session, form_data.username)
         if user is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
 
-        return UserLoginResponse.from_entity(req)
+        if not user or not pwd_context.verify(form_data.password, user.password):
+            raise HTTPException(
+                status_code=ErrorCode.NOT_ACCESSIBLE,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        # make access token
+        data = {"sub": user.email, "exp": datetime.utcnow() + timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES)}
+        access_token = jwt.encode(data, jwt_secret_key["secret_key"], algorithm=Config.ALGORITHM)
+
+        return UserLoginResponse.of(access_token=access_token, username=user.username)
 
     @transactional()
     async def signup(self, session: AsyncSession, req: UserSignUpRequest):

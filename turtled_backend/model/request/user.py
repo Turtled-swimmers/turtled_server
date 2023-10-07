@@ -1,11 +1,6 @@
 from pydantic import BaseModel, EmailStr, validator
 
 
-class UserLoginRequest(BaseModel):
-    email: str
-    password: str
-
-
 class UserSignUpRequest(BaseModel):
     username: str
     email: EmailStr

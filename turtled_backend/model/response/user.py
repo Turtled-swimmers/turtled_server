@@ -1,19 +1,18 @@
 from typing import Optional
-
 from pydantic import BaseModel
 
 from turtled_backend.config.config import Config
-from turtled_backend.schema.user import User, UserDevice
+from turtled_backend.schema.user import UserDevice
 
 
 class UserLoginResponse(BaseModel):
-    email: str
+    username: str
     token_type: str
     access_token: str
 
     @classmethod
-    def from_entity(cls, entity: User):
-        return cls(username=entity.email, token_type="Bearer", access_token="test_token")
+    def of(cls, access_token: str, username: str):
+        return cls(username=username, token_type="bearer", access_token=access_token)
 
 
 class UserProfileResponse(BaseModel):

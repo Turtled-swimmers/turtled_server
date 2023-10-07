@@ -2,16 +2,13 @@ from typing import Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from starlette import status
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
-from turtled_backend.model.request.user import (
-    UserDeviceRequest,
-    UserLoginRequest,
-    UserSignUpRequest,
-)
+from turtled_backend.model.request.user import UserDeviceRequest, UserSignUpRequest
 from turtled_backend.model.response.user import (
     UserDeviceResponse,
     UserLoginResponse,
@@ -30,8 +27,8 @@ class UserRouter:
         self.user_service = user_service
 
     @router.post("/login/local", response_model=UserLoginResponse)
-    async def login(self, req: UserLoginRequest):  # password를 이렇게 노출시키면 안될 것 같은데?? 그리고 추후 user 정보는 DI로 주입하는게 효율적일듯
-        return await self.user_service.login(req)
+    async def login(self, form_data: OAuth2PasswordRequestForm = Depends()):
+        return await self.user_service.login(form_data)
 
     @router.post("/signup", status_code=status.HTTP_204_NO_CONTENT)
     async def signup(self, req: UserSignUpRequest):

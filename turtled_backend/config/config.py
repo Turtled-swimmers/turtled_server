@@ -36,3 +36,6 @@ class Config:
     DATABASE_CONFIG: DatabaseConfig = DatabaseConfig()
     SUPPORT_EMAIL_ACCOUNT = "dev.swimmers@gmail.com"
     MESSAGING_CREDENTIAL_PATH = BASE_DIR + "/env/serviceAccountKey.json"
+    SECRET_KEY_PATH = BASE_DIR + "/env/jwtSecretKey.json"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+    ALGORITHM = "HS256"

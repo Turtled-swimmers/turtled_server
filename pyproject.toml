@@ -36,6 +36,9 @@ python-ulid = "^2.2.0"
 alembic = "^1.12.0"
 oauth2client = "^4.1.3"
 firebase-admin = "^6.2.0"
+python-multipart = "^0.0.6"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 [tool.taskipy.tasks]
 server = "API_ENV=prod uvicorn turtled_backend.main:app --host 0.0.0.0 --port 8000 --reload"
