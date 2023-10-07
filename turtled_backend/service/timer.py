@@ -11,10 +11,13 @@ from turtled_backend.model.request.timer import (
     TimerEndRequest,
     TimerStartRequest,
 )
+from turtled_backend.model.request.user import UserDeviceRequest
 from turtled_backend.model.response.timer import ErrorResponse, MessageResponse
+from turtled_backend.model.response.user import UserDeviceResponse
 from turtled_backend.repository.challenge import ChallengeRecordRepository
 from turtled_backend.repository.user import UserDeviceRepository
 from turtled_backend.schema.challenge import ChallengeRecord
+from turtled_backend.schema.user import UserDevice
 
 
 class TimerService:
@@ -84,3 +87,16 @@ class TimerService:
             message=f"sent message to {batch_response.success_count} device(s)",
             error=ErrorResponse(count=batch_response.failure_count, errors=errors_lst),
         )
+
+    @transactional()
+    async def register_device(self, session: AsyncSession, user_device: UserDeviceRequest):
+        saved_user_device = await self.user_device_repository.find_by_device_token(session, user_device.token)
+        if saved_user_device is None:
+            saved_user_device = await self.user_device_repository.save(
+                session,
+                UserDevice.of(device_token=user_device.token),
+            )
+        else:
+            saved_user_device.update(user_device.token)
+
+        return UserDeviceResponse.from_entity(saved_user_device)

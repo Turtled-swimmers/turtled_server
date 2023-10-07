@@ -1,17 +1,19 @@
 import json
 from datetime import datetime, timedelta
-from typing import Optional
 
-from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
+from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
-from turtled_backend.common.util.auth import CurrentUser, pwd_context
 from turtled_backend.common.util.transaction import transactional
 from turtled_backend.config.config import Config
-from turtled_backend.model.request.user import UserDeviceRequest, UserSignUpRequest
+from turtled_backend.model.request.user import (
+    UserDeviceRequest,
+    UserRequest,
+    UserSignUpRequest,
+)
 from turtled_backend.model.response.user import (
     UserDeviceResponse,
     UserLoginResponse,
@@ -37,12 +39,9 @@ class UserService:
         if user is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
 
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         if not user or not pwd_context.verify(form_data.password, user.password):
-            raise HTTPException(
-                status_code=ErrorCode.NOT_ACCESSIBLE,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise NotFoundException(ErrorCode.NOT_ACCESSIBLE, "Incorrect username or password")
 
         # make access token
         data = {"sub": user.email, "exp": datetime.utcnow() + timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES)}
@@ -56,6 +55,7 @@ class UserService:
         if user is not None:
             raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
 
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         return await self.user_repository.save(
             session, User.of(req.username, req.email, pwd_context.hash(req.password))
         )
@@ -72,24 +72,20 @@ class UserService:
         return UserProfileMedalResponse(title="성실 거북", image="s3://turtled-s3-bucket/medals/hello_turtle.png")
 
     @transactional()
-    async def register_device(
-        self, session: AsyncSession, subject: Optional[CurrentUser], user_device: UserDeviceRequest
+    async def register_device_with_user(
+        self, session: AsyncSession, subject: UserRequest, user_device: UserDeviceRequest
     ):
-        # register device token for FCM service
-        user = None
-        if subject is not None:
-            if subject.id is not None:
-                user = await self.user_repository.find_by_id(session, subject.id)
-
-        # Verify to FCM server, that the device_token is real
+        user = await self.user_repository.find_by_id(session, subject.id)
+        if user is not None:
+            raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
 
         saved_user_device = await self.user_device_repository.find_by_device_token(session, user_device.token)
         if saved_user_device is None:
             saved_user_device = await self.user_device_repository.save(
                 session,
-                UserDevice.of(device_token=user_device.token, user_id=user.id if user else None),
+                UserDevice.of(device_token=user_device.token, user_id=subject.id),
             )
         else:
-            saved_user_device.update(user_device.token, user_id=user.id if user else None)
+            saved_user_device.update(user_device.token, user_id=subject.id)
 
         return UserDeviceResponse.from_entity(saved_user_device)

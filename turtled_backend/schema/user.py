@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import backref, relationship
 from ulid import ULID
@@ -36,9 +38,9 @@ class UserDevice(Base):
     user = relationship("User", backref=backref("UserDevice"))
 
     @staticmethod
-    def of(device_token: str, user_id: str):
+    def of(device_token: str, user_id: Optional[str] = None):
         return UserDevice(user_id=user_id, device_token=device_token)
 
-    def update(self, device_token: str, user_id: str):
+    def update(self, device_token: str, user_id: Optional[str] = None):
         self.device_token = device_token
         self.user_id = user_id

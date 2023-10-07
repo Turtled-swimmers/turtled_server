@@ -1,5 +1,3 @@
-from typing import Optional
-
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -35,13 +33,13 @@ class UserRouter:
         return await self.user_service.signup(req)
 
     @router.post("/profile", response_model=UserProfileResponse)
-    async def find_profile(self):
+    async def find_profile(self, subject: CurrentUser):
         return await self.user_service.find_profile()
 
     @router.post("/profile/medal", response_model=UserProfileMedalResponse)
-    async def find_profile_medal(self):
+    async def find_profile_medal(self, subject: CurrentUser):
         return await self.user_service.find_profile_medal()
 
     @router.post("/register", response_model=UserDeviceResponse, status_code=201)
-    async def register_device(self, subject: Optional[CurrentUser], user_device: UserDeviceRequest):
-        return await self.user_service.register_device(subject, user_device)
+    async def register_device(self, subject: CurrentUser, user_device: UserDeviceRequest):
+        return await self.user_service.register_device_with_user(subject, user_device)

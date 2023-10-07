@@ -9,7 +9,9 @@ from turtled_backend.model.request.timer import (
     TimerEndRequest,
     TimerStartRequest,
 )
+from turtled_backend.model.request.user import UserDeviceRequest
 from turtled_backend.model.response.timer import MessageResponse
+from turtled_backend.model.response.user import UserDeviceResponse
 from turtled_backend.service.timer import TimerService
 
 router = APIRouter()
@@ -32,3 +34,7 @@ class TimerRouter:
     @router.post("/message", response_model=MessageResponse)
     async def send_message(self, message: MessageRequest):
         return await self.timer_service.send_message(message)
+
+    @router.post("/register", response_model=UserDeviceResponse, status_code=201)
+    async def register_device(self, user_device: UserDeviceRequest):
+        return await self.timer_service.register_device(user_device)

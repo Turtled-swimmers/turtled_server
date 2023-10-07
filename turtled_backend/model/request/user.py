@@ -20,12 +20,11 @@ class UserSignUpRequest(BaseModel):
         return v
 
 
-class User(BaseModel):
+class UserRequest(BaseModel):
     id: str
     username: str
     email: str
 
 
 class UserDeviceRequest(BaseModel):
-    user_id: str
     token: str

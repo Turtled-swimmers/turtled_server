@@ -1,38 +1,51 @@
-from typing import Annotated, Callable, Optional
+import json
+from typing import Annotated, Callable
 
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
+from jose import JWTError, jwt
 
-from turtled_backend.model.request.user import User
+from turtled_backend.common.error.exception import ErrorCode, NotFoundException
+from turtled_backend.common.util.database import db
+from turtled_backend.config.config import Config
+from turtled_backend.container import Container
+from turtled_backend.model.request.user import UserRequest
+from turtled_backend.repository.user import UserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def fake_decode_token(token):
-    return User(id="010101", username=token + "fakedecoded", email="testuser@example.com")
-
-
-def fake_hash_password(password: str):
-    return "fakehashed" + password
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
 
 
 def get_current_user_authorizer(*, required: bool = False) -> Callable:
-    return get_current_user if required else get_current_user_optional
-
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    current_user = fake_decode_token(token)
-    return current_user
-
-
-async def get_current_user_optional(token: Annotated[str, Depends(oauth2_scheme)]) -> Optional[User]:
     # Log-in user with a member ID or non-member order.
-    if token:
-        return await get_current_user(token)
-    return None
+    return get_current_user if required else None
 
 
-CurrentUser = Annotated[User, Depends(get_current_user_authorizer)]
+@inject
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    user_repository: UserRepository = Depends(Provide[Container.user_repository]),
+):
+    credentials_exception = NotFoundException(ErrorCode.NOT_ACCESSIBLE, "Could not validate credentials")
+    try:
+        with open(Config.SECRET_KEY_PATH, encoding="utf-8") as f:
+            jwt_secret_key = json.load(f)
+
+        payload = jwt.decode(token, jwt_secret_key["secret_key"], algorithms=[Config.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    else:
+        user = await user_repository.find_by_email(db, email)
+        if user is None:
+            raise credentials_exception
+        return UserRequest(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+        )
+
+
+CurrentUser = Annotated[UserRequest, Depends(get_current_user)]
