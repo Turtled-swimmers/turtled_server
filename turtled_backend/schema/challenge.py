@@ -1,6 +1,8 @@
 import datetime
+from typing import Optional
 
 from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import backref, relationship
 from ulid import ULID
 
@@ -27,13 +29,20 @@ class UserChallenge(Base):
     medal = relationship("Medal", backref=backref("UserChallenge"))
 
 
-class CalenderList(Base):
+class CalenderRecordList(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
     month_and_year = Column(String(length=15), nullable=False)
-    date_field = Column(JSON())
+    date_field = Column(MutableDict.as_mutable(JSON))
 
-    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
+    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"), nullable=False)
     user = relationship("User", backref=backref("CalenderList"))
+
+    @staticmethod
+    def of(month_and_year: month_and_year, user_id: str, date_field: Optional[dict] = None):
+        return CalenderRecordList(month_and_year=month_and_year, user_id=user_id, date_field=date_field)
+
+    def update(self, event_date: str):
+        self.date_field[event_date] = True
 
 
 class ChallengeRecord(Base):

@@ -13,7 +13,7 @@ from turtled_backend.container import Container
 from turtled_backend.model.request.user import UserRequest
 from turtled_backend.repository.user import UserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login/local")
 
 
 def get_current_user_authorizer(*, required: bool = False) -> Callable:
@@ -38,14 +38,18 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     else:
-        user = await user_repository.find_by_email(db, email)
-        if user is None:
-            raise credentials_exception
-        return UserRequest(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-        )
+        async with db.async_session_maker() as session:
+            try:
+                user = await user_repository.find_by_email(session, email)
+                if user is None:
+                    raise credentials_exception
+                return UserRequest(
+                    id=user.id,
+                    username=user.username,
+                    email=user.email,
+                )
+            finally:
+                await session.close()
 
 
 CurrentUser = Annotated[UserRequest, Depends(get_current_user)]

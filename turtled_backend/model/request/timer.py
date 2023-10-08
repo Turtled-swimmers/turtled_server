@@ -24,3 +24,4 @@ class TimerStartRequest(BaseModel):
 class TimerEndRequest(BaseModel):
     device_token: str
     end_time: str
+    count: int

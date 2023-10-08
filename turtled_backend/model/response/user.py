@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from turtled_backend.config.config import Config
-from turtled_backend.schema.user import UserDevice
+from turtled_backend.schema.user import User, UserDevice
 
 
 class UserLoginResponse(BaseModel):
@@ -23,11 +23,11 @@ class UserProfileResponse(BaseModel):
     support_email: str
 
     @classmethod
-    def from_entity(cls, entity: dict):
+    def from_entity(cls, entity: User):
         return cls(
-            username=entity["username"],
-            email=entity["email"],
-            update_version=entity["update_version"],
+            username=entity.username,
+            email=entity.email,
+            update_version=entity.update_version,
             support_email=Config.SUPPORT_EMAIL_ACCOUNT,
         )
 

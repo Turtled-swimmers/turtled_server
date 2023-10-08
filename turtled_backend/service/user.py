@@ -52,7 +52,7 @@ class UserService:
     @transactional()
     async def signup(self, session: AsyncSession, req: UserSignUpRequest):
         user = self.user_repository.find_by_email(session, req.email)
-        if user is not None:
+        if user is None:
             raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
 
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -61,14 +61,21 @@ class UserService:
         )
 
     @transactional(read_only=True)
-    async def find_profile(self, session: AsyncSession):
+    async def find_profile(self, session: AsyncSession, subject: UserRequest):
         # find user profile information
-        test_user_data = {"username": "Swimmers", "email": "turtled_test_user@gmail.com", "update_version": "0.0.1"}
-        return UserProfileResponse.from_entity(test_user_data)
+        user = await self.user_repository.find_by_id(session, subject.id)
+        if user is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+
+        return UserProfileResponse.from_entity(user)
 
     @transactional(read_only=True)
-    async def find_profile_medal(self, session: AsyncSession):
+    async def find_profile_medal(self, session: AsyncSession, subject: UserRequest):
         # find user's latest gained medal information
+        user = await self.user_repository.find_by_id(session, subject.id)
+        if user is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+
         return UserProfileMedalResponse(title="성실 거북", image="s3://turtled-s3-bucket/medals/hello_turtle.png")
 
     @transactional()
@@ -76,8 +83,8 @@ class UserService:
         self, session: AsyncSession, subject: UserRequest, user_device: UserDeviceRequest
     ):
         user = await self.user_repository.find_by_id(session, subject.id)
-        if user is not None:
-            raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
+        if user is None:
+            raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "No user exists")
 
         saved_user_device = await self.user_device_repository.find_by_device_token(session, user_device.token)
         if saved_user_device is None:
@@ -87,5 +94,18 @@ class UserService:
             )
         else:
             saved_user_device.update(user_device.token, user_id=subject.id)
+
+        return UserDeviceResponse.from_entity(saved_user_device)
+
+    @transactional()
+    async def register_device(self, session: AsyncSession, user_device: UserDeviceRequest):
+        saved_user_device = await self.user_device_repository.find_by_device_token(session, user_device.token)
+        if saved_user_device is None:
+            saved_user_device = await self.user_device_repository.save(
+                session,
+                UserDevice.of(device_token=user_device.token),
+            )
+        else:
+            saved_user_device.update(user_device.token)
 
         return UserDeviceResponse.from_entity(saved_user_device)
