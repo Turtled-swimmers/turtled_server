@@ -19,7 +19,6 @@ class UserLoginResponse(BaseModel):
 class UserProfileResponse(BaseModel):
     username: str
     email: str
-    update_version: str
     support_email: str
 
     @classmethod
@@ -27,7 +26,6 @@ class UserProfileResponse(BaseModel):
         return cls(
             username=entity.username,
             email=entity.email,
-            update_version=entity.update_version,
             support_email=Config.SUPPORT_EMAIL_ACCOUNT,
         )
 

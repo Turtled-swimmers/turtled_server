@@ -43,17 +43,19 @@ class ChallengeService:
         achievement_list = {"1234": True, "1235": False, "1236": False}
         return [ChallengeResponse.from_entity(medal, achievement_list[medal.id]) for medal in medal_list]
 
-    @transactional(read_only=True)
+    @transactional()
     async def get_monthly_history(self, session: AsyncSession, subject: UserRequest, time_filter: str):
-        date_field = await self.calendar_record_list_repository.find_by_user_and_month_and_year(
+        calendar_record_list = await self.calendar_record_list_repository.find_by_user_and_month_and_year(
             session, subject.id, time_filter
         )
 
-        if date_field is None:
+        if calendar_record_list is None:
             date_field = await create_monthly_history(time_filter)
-            await self.calendar_record_list_repository.save(
+            calendar_record_list = await self.calendar_record_list_repository.save(
                 session, CalenderRecordList.of(month_and_year=time_filter, user_id=subject.id, date_field=date_field)
             )
+
+        date_field = calendar_record_list.date_field
 
         return [
             CalendarEventResponse(calendar_date=calendar_date, has_event=has_event)
