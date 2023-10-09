@@ -1,5 +1,7 @@
-from sqlalchemy import and_, desc, select
+from datetime import date
+from sqlalchemy import and_, desc, select, asc
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from turtled_backend.common.util.repository import Repository
 from turtled_backend.schema.challenge import (
@@ -15,17 +17,21 @@ class MedalRepository(Repository[Medal]):
 
 
 class UserChallengeRepository(Repository[UserChallenge]):
-    ...
+    async def find_by_user_id(self, session: AsyncSession, user_id: str):
+        result = await session.execute(
+            select(UserChallenge).where((UserChallenge.user_id == user_id)).options(selectinload(UserChallenge.medal))
+        )
+        return result.scalars().all()
 
 
 class CalenderRecordListRepository(Repository[CalenderRecordList]):
     async def find_by_user_and_month_and_year(self, session: AsyncSession, user_id: str, month_and_year: str):
-        user = await session.execute(
+        result = await session.execute(
             select(CalenderRecordList).where(
                 and_(CalenderRecordList.user_id == user_id, CalenderRecordList.month_and_year == month_and_year)
             )
         )
-        return user.scalars().one_or_none()
+        return result.scalars().one_or_none()
 
 
 class ChallengeRecordRepository(Repository[ChallengeRecord]):
@@ -36,3 +42,17 @@ class ChallengeRecordRepository(Repository[ChallengeRecord]):
             .order_by(desc(ChallengeRecord.start_time))
         )
         return result.scalars().first()
+
+    async def find_by_date_and_user(self, session: AsyncSession, device_id: str, time_from: date, time_to: date):
+        result = await session.execute(
+            select(ChallengeRecord)
+            .where(
+                and_(
+                    ChallengeRecord.device_id == device_id,
+                    ChallengeRecord.end_time >= time_from,
+                    ChallengeRecord.end_time < time_to,
+                )
+            )
+            .order_by(asc(ChallengeRecord.start_time))
+        )
+        return result.scalars().all()

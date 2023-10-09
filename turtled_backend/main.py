@@ -11,7 +11,7 @@ from turtled_backend.common.util.database import db
 from turtled_backend.common.util.firebase import firebase_manager
 from turtled_backend.config.config import Config
 from turtled_backend.container import Container
-from turtled_backend.router import challenge, example, index, timer, user
+from turtled_backend.router import challenge, index, timer, user
 
 nest_asyncio.apply()
 
@@ -28,7 +28,6 @@ def create_app() -> FastAPI:
     api_prefix = "/api/" + api_version
 
     _app.include_router(index.router)
-    _app.include_router(example.router, prefix=api_prefix + "/examples")
     _app.include_router(user.router, prefix=api_prefix + "/users")
     _app.include_router(challenge.router, prefix=api_prefix + "/challenges")
     _app.include_router(timer.router, prefix=api_prefix + "/timers")

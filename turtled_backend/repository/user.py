@@ -19,7 +19,7 @@ class UserDeviceRepository(Repository[UserDevice]):
         return result.scalars().one_or_none()
 
     async def find_by_user_id(self, session: AsyncSession, user_id: str):
-        result = await session.execute(select(UserDevice.device_token).where(UserDevice.user_id == user_id))
+        result = await session.execute(select(UserDevice).where(UserDevice.user_id == user_id))
         return result.scalars().all()
 
     async def find_by_user_id_and_device_token(self, session: AsyncSession, user_id: Optional[str], device_token: str):

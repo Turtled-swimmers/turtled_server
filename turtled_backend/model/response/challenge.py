@@ -2,7 +2,7 @@ from datetime import date
 
 from pydantic import BaseModel
 
-from turtled_backend.schema.challenge import Medal
+from turtled_backend.schema.challenge import Medal, ChallengeRecord
 
 
 class ChallengeResponse(BaseModel):
@@ -43,10 +43,10 @@ class DateHistoryResponse(BaseModel):
     count: int
 
     @classmethod
-    def from_entity(cls, entity: dict):
+    def from_entity(cls, entity: ChallengeRecord):
         return cls(
-            timer_start_time=entity["timer_start_time"],
-            timer_end_time=entity["timer_end_time"],
-            repeat_cycle=entity["repeat_cycle"],
-            count=entity["count"],
+            timer_start_time=entity.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            timer_end_time=entity.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+            repeat_cycle=entity.repeat_cycle,
+            count=entity.count,
         )

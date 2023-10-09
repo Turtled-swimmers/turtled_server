@@ -22,12 +22,19 @@ from turtled_backend.model.response.user import (
 )
 from turtled_backend.repository.user import UserDeviceRepository, UserRepository
 from turtled_backend.schema.user import User, UserDevice
+from turtled_backend.repository.challenge import MedalRepository
 
 
 class UserService:
-    def __init__(self, user_repository: UserRepository, user_device_repository: UserDeviceRepository):
+    def __init__(
+        self,
+        user_repository: UserRepository,
+        user_device_repository: UserDeviceRepository,
+        medal_repository: MedalRepository,
+    ):
         self.user_repository = user_repository
         self.user_device_repository = user_device_repository
+        self.medal_repository = medal_repository
 
     @transactional(read_only=True)
     async def login(self, session: AsyncSession, form_data: OAuth2PasswordRequestForm):
@@ -75,8 +82,16 @@ class UserService:
         user = await self.user_repository.find_by_id(session, subject.id)
         if user is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
-
-        return UserProfileMedalResponse(title="성실 거북", image="s3://turtled-s3-bucket/medals/hello_turtle.png")
+        if user.medal_id is None:
+            title = "헬로 거북"
+            image = ""
+        else:
+            medal = await self.medal_repository.find_by_id(session, user.medal_id)
+            if medal is None:
+                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+            title = medal.title
+            image = medal.image
+        return UserProfileMedalResponse(title=title, image=image)
 
     @transactional()
     async def register_device_with_user(

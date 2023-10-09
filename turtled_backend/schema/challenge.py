@@ -16,6 +16,7 @@ class Medal(Base):
     subtitle = Column(String(length=500), nullable=False)
     content = Column(String(length=500), nullable=False)
     requirement = Column(String(length=500), nullable=False)
+    order = Column(Integer, default=0)
 
 
 class UserChallenge(Base):

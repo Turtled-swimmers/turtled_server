@@ -23,8 +23,8 @@ class ChallengeRouter:
         self.challenge_service = challenge_service
 
     @router.get("/list", response_model=List[ChallengeResponse])
-    async def find_challenge_list(self):
-        return await self.challenge_service.get_list()
+    async def find_challenge_list(self, subject: CurrentUser):
+        return await self.challenge_service.get_list(subject)
 
     @router.get("/history/{time_filter}", response_model=List[CalendarEventResponse])
     async def find_monthly_history(self, subject: CurrentUser, time_filter: str):
@@ -32,4 +32,4 @@ class ChallengeRouter:
 
     @router.get("/history/detail/{current_date}", response_model=List[DateHistoryResponse])
     async def find_date_history(self, subject: CurrentUser, current_date: str):
-        return await self.challenge_service.get_date_history(current_date)
+        return await self.challenge_service.get_date_history(subject, current_date)

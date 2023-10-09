@@ -32,7 +32,10 @@ class Container(containers.DeclarativeContainer):
     example_service = providers.Singleton(ExampleService, example_repository=example_repository)
 
     user_service = providers.Singleton(
-        UserService, user_repository=user_repository, user_device_repository=user_device_repository
+        UserService,
+        user_repository=user_repository,
+        user_device_repository=user_device_repository,
+        medal_repository=medal_repository,
     )
 
     challenge_service = providers.Singleton(
@@ -41,6 +44,7 @@ class Container(containers.DeclarativeContainer):
         user_challenge_repository=user_challenge_repository,
         user_device_repository=user_device_repository,
         calendar_record_list_repository=calendar_record_list_repository,
+        challenge_record_repository=challenge_record_repository,
     )
 
     timer_service = providers.Singleton(
