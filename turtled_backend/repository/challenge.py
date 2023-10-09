@@ -13,7 +13,9 @@ from turtled_backend.schema.challenge import (
 
 
 class MedalRepository(Repository[Medal]):
-    ...
+    async def find_all(self, session: AsyncSession):
+        result = await session.execute(select(Medal))
+        return result.scalars().all()
 
 
 class UserChallengeRepository(Repository[UserChallenge]):

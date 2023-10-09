@@ -22,7 +22,8 @@ from turtled_backend.model.response.user import (
 )
 from turtled_backend.repository.user import UserDeviceRepository, UserRepository
 from turtled_backend.schema.user import User, UserDevice
-from turtled_backend.repository.challenge import MedalRepository
+from turtled_backend.schema.challenge import UserChallenge
+from turtled_backend.repository.challenge import MedalRepository, UserChallengeRepository
 
 
 class UserService:
@@ -31,10 +32,12 @@ class UserService:
         user_repository: UserRepository,
         user_device_repository: UserDeviceRepository,
         medal_repository: MedalRepository,
+        user_challenge_repository: UserChallengeRepository
     ):
         self.user_repository = user_repository
         self.user_device_repository = user_device_repository
         self.medal_repository = medal_repository
+        self.user_challenge_repository = user_challenge_repository
 
     @transactional(read_only=True)
     async def login(self, session: AsyncSession, form_data: OAuth2PasswordRequestForm):
@@ -58,14 +61,18 @@ class UserService:
 
     @transactional()
     async def signup(self, session: AsyncSession, req: UserSignUpRequest):
-        user = self.user_repository.find_by_email(session, req.email)
-        if user is None:
+        user = await self.user_repository.find_by_email(session, req.email)
+        if user is not None:
             raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "This user already exists")
-
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        return await self.user_repository.save(
+
+        user = await self.user_repository.save(
             session, User.of(req.username, req.email, pwd_context.hash(req.password))
         )
+
+        medal_list = await self.medal_repository.find_all(session)
+        user_medal_list = [UserChallenge.of(user_id=user.id, medal_id=medal.id) for medal in medal_list]
+        return await self.user_challenge_repository.save_all(session, user_medal_list)
 
     @transactional(read_only=True)
     async def find_profile(self, session: AsyncSession, subject: UserRequest):

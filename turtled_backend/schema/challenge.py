@@ -29,6 +29,10 @@ class UserChallenge(Base):
     medal_id = Column(String(length=255), ForeignKey("tb_medal.id", ondelete="SET NULL"))
     medal = relationship("Medal", backref=backref("UserChallenge"))
 
+    @staticmethod
+    def of(user_id: str, medal_id: str):
+        return UserChallenge(user_id=user_id, medal_id=medal_id)
+
 
 class CalenderRecordList(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))

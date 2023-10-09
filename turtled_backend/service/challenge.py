@@ -43,9 +43,9 @@ class ChallengeService:
         #     Medal("1236", "test2.png", "의지 넘치는 의지 거북", "한다면 한다~! 스트레칭 해보자고", "달성 조건: 10회 이상 스트레칭"),
         # ]
         #
-        # achievement_list = {"1234": True, "1235": False, "1236": False}
         challenge_list = await self.user_challenge_repository.find_by_user_id(session, subject.id)
-        return [ChallengeResponse.from_entity(challenge.medal, challenge.isAchieved) for challenge in challenge_list]
+        challenge_list.sort(key=lambda x: x.medal.order)
+        return [ChallengeResponse.from_entity(record.medal, record.isAchieved) for record in challenge_list]
 
     @transactional()
     async def get_monthly_history(self, session: AsyncSession, subject: UserRequest, time_filter: str):

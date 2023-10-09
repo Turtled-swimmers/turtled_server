@@ -36,6 +36,7 @@ class Container(containers.DeclarativeContainer):
         user_repository=user_repository,
         user_device_repository=user_device_repository,
         medal_repository=medal_repository,
+        user_challenge_repository=user_challenge_repository,
     )
 
     challenge_service = providers.Singleton(
