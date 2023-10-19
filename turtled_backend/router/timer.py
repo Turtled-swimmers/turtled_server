@@ -29,6 +29,6 @@ class TimerRouter:
     async def timer_done(self, request: TimerEndRequest):
         return await self.timer_service.end_timer(request)
 
-    @router.post("/message", response_model=MessageResponse)
+    @router.post("/message")
     async def send_message(self, message: MessageRequest):
         return await self.timer_service.send_message(message)

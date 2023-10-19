@@ -14,14 +14,25 @@ class FirebaseCloudMessageService:
     def init(self):
         initialize_app(self.cred)
 
-    def send(self, title: str, body: str, tokens: List[str]) -> messaging.BatchResponse:
+    async def send(self, title: str, body: str, token: str):
         notification = messaging.Notification(title=title, body=body)
 
-        message = messaging.MulticastMessage(tokens=tokens, notification=notification)
+        # message = messaging.MulticastMessage(tokens=tokens, notification=notification)
         try:
-            batch_response = messaging.send_each_for_multicast(message, dry_run=True)
-            logger.info(f"sent message to {batch_response.success_count} device(s)")
-            return batch_response
+            # See documentation on defining a message payload.
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=title,
+                    body=body,
+                ),
+                token=token,
+            )
+
+            response = messaging.send(message)
+
+            # batch_response = messaging.send_each_for_multicast(message, dry_run=True)
+            # logger.info(f"sent message to {batch_response.success_count} device(s)")
+            return response
         except (FirebaseError, ValueError) as err:
             logger.exception("exception occur when sending message using firebase admin sdk")
 

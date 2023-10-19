@@ -86,30 +86,14 @@ class TimerService:
     async def send_message(self, session: AsyncSession, req: MessageRequest):
         notify: Dict[str, str] = {"title": "Turtled", "body": "터틀드와 함께 으샤으샤 운동해요"}
 
-        user_device = await self.user_device_repository.find_by_device_token(session, req.device_token)
-        if user_device is None:
-            raise NotFoundException(
-                ErrorCode.DATA_DOES_NOT_EXIST, f"user don't have any registered device(s)"
-            )
+        # user_device = await self.user_device_repository.find_by_device_token(session, req.device_token)
+        # if user_device is None:
+        #     raise NotFoundException(
+        #         ErrorCode.DATA_DOES_NOT_EXIST, f"user don't have any registered device(s)"
+        #     )
 
-        batch_response = firebase_manager.send(
-            notify.get("title"), notify.get("body"), [user_device.device_token]
+        response = await firebase_manager.send(
+            notify.get("title"), notify.get("body"), req.device_token
         )
-        errors_lst = []
-        for v in batch_response.responses:
-            if v.exception:
-                error = {}
-                cause_resp = v.exception.__dict__.get("_cause").__dict__
-                cause_dict = json.loads(cause_resp.get("content").decode("utf-8"))
-                # Preparing custom error response list
-                error["status"] = cause_dict.get("error").get("status", None)
-                error["code"] = cause_dict.get("error").get("code", None)
-                error["error_code"] = cause_dict.get("error").get("details")[0].get("errorCode", None)
-                error["cause"] = cause_dict.get("error").get("message", None)
-                errors_lst.append(error)
 
-        return MessageResponse(
-            success_count=batch_response.success_count,
-            message=f"sent message to {batch_response.success_count} device(s)",
-            error=ErrorResponse(count=batch_response.failure_count, errors=errors_lst),
-        )
+        return response
