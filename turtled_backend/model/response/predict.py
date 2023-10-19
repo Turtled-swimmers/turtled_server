@@ -1,10 +1,9 @@
 from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
 
 class PredictResponse(BaseModel):
-    medal_id: str
-    image: str
-
-
-    @classmethod
-    def of(cls, medal_id: str, image: str):
-        return cls(medal_id=medal_id, image=image)
+    percentage: int
+    @staticmethod
+    def of(percentage: int):
+        return PredictResponse(percentage=percentage)

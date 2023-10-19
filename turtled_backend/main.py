@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
     _app.include_router(user.router, prefix=api_prefix + "/users")
     _app.include_router(challenge.router, prefix=api_prefix + "/challenges")
     _app.include_router(timer.router, prefix=api_prefix + "/timers")
-    _app.include_router(predict.router, prefix=api_prefix + "/predict")
+    _app.include_router(predict.router, prefix=api_prefix + "/predicts")
 
     """ Define Middleware """
     _app.add_middleware(

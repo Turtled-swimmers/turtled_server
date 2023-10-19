@@ -8,6 +8,8 @@ from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
 from turtled_backend.model.response.predict import PredictResponse
 from turtled_backend.service.predict import PredictService
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
 
 router = APIRouter()
 
@@ -18,6 +20,6 @@ class PredictRouter:
     def __init__(self, predict_service: PredictService = Depends(Provide[Container.predict_service])):
         self.predict_service = predict_service
 
-    @router.post("/upload", response_model=List[PredictResponse])
-    async def upload_file(self):
-        return await self.predict_service.upload_file()
+    @router.post("/upload", response_model = PredictResponse) # , response_class=FileResponse
+    async def upload_file(self, servey_video: UploadFile):
+        return await self.predict_service.upload_file(servey_video)
