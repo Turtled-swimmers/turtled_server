@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 from turtled_backend.common.util.transaction import transactional
+from turtled_backend.common.util.s3 import S3_CLIENT
 from turtled_backend.config.config import Config
 from turtled_backend.model.request.user import (
     UserDeviceRequest,
@@ -84,24 +85,25 @@ class UserService:
         return UserProfileResponse.from_entity(user)
 
     @transactional(read_only=True)
-    async def find_profile_medal(self, session: AsyncSession, subject: UserRequest):
+    async def find_profile_medal(self, session: AsyncSession):
         # find user's latest gained medal information
-        user = await self.user_repository.find_by_id(session, subject.id)
-        if user is None:
-            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
-        if user.medal_id is None:
-            title = "헬로 거북"
-            image = ""  # S3_CLIENT.s3_download("")
-            medal = self.medal_repository.find_by_order(session, 1)
-            if medal is None:
-                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST,"First Medal not found")
-            user.update(medal_id=medal)
-        else:
-            medal = await self.medal_repository.find_by_id(session, user.medal_id)
-            if medal is None:
-                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
-            title = medal.title
-            image = medal.image
+        # user = await self.user_repository.find_by_id(session, subject.id)
+        # if user is None:
+        #     raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+        # if user.medal_id is None:
+        title = "헬로 거북"
+        image = await S3_CLIENT.s3_download("medals/hello_turtle.png")
+        print("LOG:", image)
+            # medal = self.medal_repository.find_by_order(session, 1)
+            # if medal is None:
+            #     raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST,"First Medal not found")
+            # user.update(medal_id=medal)
+        # else:
+        #     medal = await self.medal_repository.find_by_id(session, user.medal_id)
+        #     if medal is None:
+        #         raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
+        #     title = medal.title
+        #     image = medal.image
         return UserProfileMedalResponse(title=title, image=image)
 
     @transactional()
