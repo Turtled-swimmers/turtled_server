@@ -14,6 +14,7 @@ from turtled_backend.service.challenge import ChallengeService
 from turtled_backend.service.example import ExampleService
 from turtled_backend.service.timer import TimerService
 from turtled_backend.service.user import UserService
+from turtled_backend.service.predict import PredictService
 
 
 class Container(containers.DeclarativeContainer):
@@ -53,4 +54,8 @@ class Container(containers.DeclarativeContainer):
         user_device_repository=user_device_repository,
         challenge_record_repository=challenge_record_repository,
         calendar_record_list_repository=calendar_record_list_repository,
+    )
+
+    predict_service = providers.Singleton(
+        PredictService
     )

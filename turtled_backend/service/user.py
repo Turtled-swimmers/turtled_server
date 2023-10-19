@@ -91,11 +91,15 @@ class UserService:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
         if user.medal_id is None:
             title = "헬로 거북"
-            image = ""
+            image = ""  # S3_CLIENT.s3_download("")
+            medal = self.medal_repository.find_by_order(session, 1)
+            if medal is None:
+                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST,"First Medal not found")
+            user.update(medal_id=medal)
         else:
             medal = await self.medal_repository.find_by_id(session, user.medal_id)
             if medal is None:
-                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+                raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
             title = medal.title
             image = medal.image
         return UserProfileMedalResponse(title=title, image=image)

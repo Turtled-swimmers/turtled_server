@@ -29,6 +29,9 @@ class User(Base):
             password=password,
         )
 
+    def update(self, medal_id: str):
+        self.medal_id = medal_id
+
 
 class UserDevice(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))

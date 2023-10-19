@@ -39,6 +39,7 @@ firebase-admin = "^6.2.0"
 python-multipart = "^0.0.6"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+boto3 = "^1.28.66"
 
 [tool.taskipy.tasks]
 server = "API_ENV=prod uvicorn turtled_backend.main:app --host 0.0.0.0 --port 8000 --reload"

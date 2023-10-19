@@ -14,10 +14,10 @@ class FirebaseCloudMessageService:
     def init(self):
         initialize_app(self.cred)
 
-    def send(self, msg: str, title: str, body: str, tokens: List[str]) -> messaging.BatchResponse:
+    def send(self, title: str, body: str, tokens: List[str]) -> messaging.BatchResponse:
         notification = messaging.Notification(title=title, body=body)
 
-        message = messaging.MulticastMessage(data={"message": msg}, tokens=tokens, notification=notification)
+        message = messaging.MulticastMessage(tokens=tokens, notification=notification)
         try:
             batch_response = messaging.send_each_for_multicast(message, dry_run=True)
             logger.info(f"sent message to {batch_response.success_count} device(s)")

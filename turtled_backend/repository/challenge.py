@@ -17,6 +17,10 @@ class MedalRepository(Repository[Medal]):
         result = await session.execute(select(Medal))
         return result.scalars().all()
 
+    async def find_by_order(self, session: AsyncSession, order: int):
+        result = await session.execute(select(Medal).where((Medal.order == order)))
+        return result.scalars().one_or_none()
+
 
 class UserChallengeRepository(Repository[UserChallenge]):
     async def find_by_user_id(self, session: AsyncSession, user_id: str):

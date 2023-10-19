@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -82,15 +83,17 @@ class TimerService:
             calendar_record_list.update(event_date=request.end_time[:10])
 
     @transactional(read_only=True)
-    async def send_message(self, session: AsyncSession, message: MessageRequest):
-        user_device = await self.user_device_repository.find_by_device_token(session, message.device_token)
+    async def send_message(self, session: AsyncSession, req: MessageRequest):
+        notify: Dict[str, str] = {"title": "Turtled", "body": "터틀드와 함께 으샤으샤 운동해요"}
+
+        user_device = await self.user_device_repository.find_by_device_token(session, req.device_token)
         if user_device is None:
             raise NotFoundException(
-                ErrorCode.DATA_DOES_NOT_EXIST, f"user id {message.user_id} don't have any registered device(s)"
+                ErrorCode.DATA_DOES_NOT_EXIST, f"user don't have any registered device(s)"
             )
 
         batch_response = firebase_manager.send(
-            message.message, message.notify.get("title"), message.notify.get("body"), [user_device.device_token]
+            notify.get("title"), notify.get("body"), [user_device.device_token]
         )
         errors_lst = []
         for v in batch_response.responses:

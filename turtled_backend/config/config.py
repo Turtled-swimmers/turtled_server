@@ -39,3 +39,5 @@ class Config:
     SECRET_KEY_PATH = BASE_DIR + "/env/jwtSecretKey.json"
     ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
     ALGORITHM = "HS256"
+
+    AWS_ACCESS_KEY_PATH = BASE_DIR + "/env/awsAccessKeys.json"

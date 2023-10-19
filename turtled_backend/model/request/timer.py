@@ -1,4 +1,3 @@
-from typing import Dict
 
 from pydantic import BaseModel
 
@@ -10,8 +9,6 @@ class Notify:
 
 
 class MessageRequest(BaseModel):
-    message: str
-    notify: Dict[str, str] = {"title": "", "body": ""}
     device_token: str
 
 
