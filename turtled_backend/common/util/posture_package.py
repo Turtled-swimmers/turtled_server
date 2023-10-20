@@ -54,8 +54,10 @@ async def run_prediction(file_uid: str):
     # ===============================================================================================#
 
     max_neck_inclination = 0
+    max_neck_image = None
     IMAGE_PATH = Config.BASE_DIR + "/temp/"
     output_filename = IMAGE_PATH + "output-" + file_uid + ".mp4"
+    output_image_filename = IMAGE_PATH + "output-" + file_uid + ".jpg"
     # For webcam input replace file name with 0.
 
     cap = cv2.VideoCapture(IMAGE_PATH + "input-" + file_uid + ".mp4")
@@ -183,12 +185,17 @@ async def run_prediction(file_uid: str):
             time_string_bad = 'Bad Posture Time : ' + str(round(bad_time, 1)) + 's'
             cv2.putText(image, time_string_bad, (10, h - 20), font, 0.9, red, 2)
 
+
+        if max_neck_inclination < int(neck_inclination):
+            max_neck_image = image
+
         max_neck_inclination = max(max_neck_inclination, int(neck_inclination))
 
         # Write frames.
         video_output.write(image)
 
+    cv2.imwrite(output_image_filename, max_neck_image)
     cap.release()
     cv2.destroyAllWindows()
 
-    return max_neck_inclination, output_filename
+    return max_neck_inclination, output_image_filename

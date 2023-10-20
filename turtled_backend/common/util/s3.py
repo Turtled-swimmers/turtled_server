@@ -25,7 +25,8 @@ class S3Client:
     async def s3_upload(self, filename: str, s2_path: str):
         # upload file to S3
         try:
-            return self.s3_client.upload_file(filename, BUCKET_NAME, s2_path)
+            return self.s3_client.upload_file(filename, BUCKET_NAME, s2_path,
+                                              ExtraArgs={'ContentType': "image/jpeg"})
         except ClientError as e:
             logging.error(e)
 

@@ -26,22 +26,21 @@ class PredictService:
         content = await servey_video.read()
         with open(input_filename, "wb") as fp:
             fp.write(content)
-        #
-        # output_filename = IMAGE_PATH + "output10.mp4"
-        #
-        # try:
-        #     await S3_CLIENT.s3_upload(output_filename, f"/temp/{image_uid}.mp4")
-        # except Exception as e:
-        #     print(e)
 
 
-        #
         max_neck_angle, targetFile = await run_prediction(image_uid)
         percentage = max_neck_angle / 90 * 100
-        #
+
+
+        try:
+            await S3_CLIENT.s3_upload(targetFile, f"temp/{image_uid}.jpg")
+            target_image = await S3_CLIENT.s3_download(f"temp/{image_uid}.jpg")
+        except Exception as e:
+            print(e)
+
         # with open(targetFile, "rb") as video:
         #     data = video.read()
         #     headers = {
         #         'Percentage': f'{percentage}',
         #     }
-        return PredictResponse.of(percentage=percentage)  # percentage # targetFile #output_filename # Response(data, status_code=206, headers=headers, media_type="video/mp4")
+        return PredictResponse.of(percentage=percentage, image=target_image)  # percentage # targetFile #output_filename # Response(data, status_code=206, headers=headers, media_type="video/mp4")
