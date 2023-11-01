@@ -37,8 +37,8 @@ class UserRouter:
         return await self.user_service.find_profile(subject)
 
     @router.get("/profile/medal", response_model=UserProfileMedalResponse)
-    async def find_profile_medal(self):
-        return await self.user_service.find_profile_medal()
+    async def find_profile_medal(self, subject: CurrentUser):
+        return await self.user_service.find_profile_medal(subject)
 
     @router.post("/register/login", response_model=UserDeviceResponse, status_code=201)
     async def register_device_with_login(self, subject: CurrentUser, user_device: UserDeviceRequest):

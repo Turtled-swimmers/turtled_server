@@ -9,6 +9,8 @@ from turtled_backend.schema.challenge import (
     ChallengeRecord,
     Medal,
     UserChallenge,
+    PredictRecord,
+    ExerciseList
 )
 
 
@@ -60,5 +62,25 @@ class ChallengeRecordRepository(Repository[ChallengeRecord]):
                 )
             )
             .order_by(asc(ChallengeRecord.start_time))
+        )
+        return result.scalars().all()
+
+class PredictRecordRepository(Repository[PredictRecord]):
+    async def find_all_by_user(self, session: AsyncSession, user_id: str):
+        result = await session.execute(
+            select(PredictRecord)
+            .where(and_(PredictRecord.user_id == user_id))
+            .order_by(desc(PredictRecord.created_date))
+
+        )
+        return result.scalars().all()
+
+
+class ExerciseListRepository(Repository[ExerciseList]):
+    async def find_by_percentage(self, session: AsyncSession, percentage: int):
+        result = await session.execute(
+            select(ExerciseList)
+            .where(and_(ExerciseList.percentage == percentage))
+            .order_by(desc(ExerciseList.id))
         )
         return result.scalars().all()

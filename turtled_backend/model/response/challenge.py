@@ -50,3 +50,7 @@ class DateHistoryResponse(BaseModel):
             repeat_cycle=entity.repeat_cycle,
             count=entity.count,
         )
+
+
+class MedalCheckResponse(BaseModel):
+    is_achieved: bool

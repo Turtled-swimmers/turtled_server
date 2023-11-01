@@ -6,10 +6,12 @@ from fastapi_utils.cbv import cbv
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
+from turtled_backend.model.request.challenge import MedalCheckRequest
 from turtled_backend.model.response.challenge import (
     CalendarEventResponse,
     ChallengeResponse,
     DateHistoryResponse,
+    MedalCheckResponse
 )
 from turtled_backend.service.challenge import ChallengeService
 
@@ -33,3 +35,7 @@ class ChallengeRouter:
     @router.get("/history/detail/{current_date}", response_model=List[DateHistoryResponse])
     async def find_date_history(self, subject: CurrentUser, current_date: str):
         return await self.challenge_service.get_date_history(subject, current_date)
+
+    @router.post("/check_medal", response_model=MedalCheckResponse)
+    async def check_medal_achieved(self, subject: CurrentUser, req: MedalCheckRequest):
+        return await self.challenge_service.check_medal_achieved(subject, req)

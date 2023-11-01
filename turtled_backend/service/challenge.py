@@ -5,10 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from turtled_backend.common.util import create_monthly_history
 from turtled_backend.common.util.transaction import transactional
 from turtled_backend.model.request.user import UserRequest
+from turtled_backend.repository.user import UserRepository
+
 from turtled_backend.model.response.challenge import (
     CalendarEventResponse,
     ChallengeResponse,
     DateHistoryResponse,
+    MedalCheckResponse
 )
 from turtled_backend.repository.challenge import (
     CalenderRecordListRepository,
@@ -18,7 +21,8 @@ from turtled_backend.repository.challenge import (
 )
 from turtled_backend.repository.user import UserDeviceRepository
 from turtled_backend.schema.challenge import CalenderRecordList, Medal
-
+from turtled_backend.model.request.challenge import MedalCheckRequest
+from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 
 class ChallengeService:
     def __init__(
@@ -28,21 +32,17 @@ class ChallengeService:
         user_device_repository: UserDeviceRepository,
         calendar_record_list_repository: CalenderRecordListRepository,
         challenge_record_repository: ChallengeRecordRepository,
+        user_repository: UserRepository,
     ):
         self.medal_repository = medal_repository
         self.user_challenge_repository = user_challenge_repository
         self.user_device_repository = user_device_repository
         self.calendar_record_list_repository = calendar_record_list_repository
         self.challenge_record_repository = challenge_record_repository
+        self.user_repository = user_repository
 
     @transactional(read_only=True)
     async def get_list(self, session: AsyncSession, subject: UserRequest):
-        # medal_list = [  # test dataset
-        #     Medal("1234", "test0.png", "나는야 성실한 성실 거북~!", "매일 매일 스트레칭한다!", "달성 조건: 1일 1스트레칭 연속 5회"),
-        #     Medal("1235", "test1.png", "열심히 달리는 열심 거북", "작심삼일! 열심히 해봐야지!", "달성 조건: 3회 이상 스트레칭"),
-        #     Medal("1236", "test2.png", "의지 넘치는 의지 거북", "한다면 한다~! 스트레칭 해보자고", "달성 조건: 10회 이상 스트레칭"),
-        # ]
-        #
         challenge_list = await self.user_challenge_repository.find_by_user_id(session, subject.id)
         challenge_list.sort(key=lambda x: x.medal.order)
         return [ChallengeResponse.from_entity(record.medal, record.isAchieved) for record in challenge_list]
@@ -80,3 +80,16 @@ class ChallengeService:
             )
 
         return [DateHistoryResponse.from_entity(record) for record in challenge_record]
+
+    # TODO: condition check implement as interface pattern
+    @transactional()
+    async def check_medal_achieved(self, session: AsyncSession, subject: UserRequest, req: MedalCheckRequest):
+        user = await self.user_repository.find_by_id(session, subject.id)
+        if user is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+
+        medal = await self.medal_repository.find_by_id(session, req.medal_id)
+        if medal is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
+
+

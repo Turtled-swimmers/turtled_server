@@ -7,6 +7,8 @@ from turtled_backend.repository.challenge import (
     ChallengeRecordRepository,
     MedalRepository,
     UserChallengeRepository,
+    PredictRecordRepository,
+    ExerciseListRepository
 )
 from turtled_backend.repository.example import ExampleRepository
 from turtled_backend.repository.user import UserDeviceRepository, UserRepository
@@ -28,6 +30,8 @@ class Container(containers.DeclarativeContainer):
     user_challenge_repository = providers.Singleton(UserChallengeRepository)
     challenge_record_repository = providers.Singleton(ChallengeRecordRepository)
     calendar_record_list_repository = providers.Singleton(CalenderRecordListRepository)
+    predict_record_repository = providers.Singleton(PredictRecordRepository)
+    exercise_list_repository = providers.Singleton(ExerciseListRepository)
 
     """ Service """
     example_service = providers.Singleton(ExampleService, example_repository=example_repository)
@@ -47,6 +51,7 @@ class Container(containers.DeclarativeContainer):
         user_device_repository=user_device_repository,
         calendar_record_list_repository=calendar_record_list_repository,
         challenge_record_repository=challenge_record_repository,
+        user_repository=user_repository,
     )
 
     timer_service = providers.Singleton(
@@ -57,5 +62,8 @@ class Container(containers.DeclarativeContainer):
     )
 
     predict_service = providers.Singleton(
-        PredictService
+        PredictService,
+        predict_record_repository=predict_record_repository,
+        user_repository=user_repository,
+        exercise_list_repository=exercise_list_repository
     )

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from typing import Optional
 
@@ -68,3 +70,30 @@ class ChallengeRecord(Base):
     def update(self, count: int, end_time: datetime):
         self.count = count
         self.end_time = end_time
+
+
+class PredictRecord(Base):
+    id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
+
+    created_date = Column(String(length=50))
+    nerd_neck_percentage = Column(Integer)
+    img_url = Column(String(length=5000))
+
+    user_id = Column(String(length=255), ForeignKey("tb_user.id", ondelete="SET NULL"))
+    user = relationship("User", backref=backref("PredictRecord"))
+
+    @staticmethod
+    def of(nerd_neck_percentage: int, img_url: str, user_id: str | None = None):
+        return PredictRecord(
+            created_date=datetime.date.today().strftime("%Y-%m-%d"),
+            nerd_neck_percentage=nerd_neck_percentage,
+            img_url=img_url,
+            user_id=user_id
+        )
+
+
+class ExerciseList(Base):
+    id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
+    description = Column(String(length=50))
+    img_url = Column(String(length=5000))
+    percentage = Column(Integer)
