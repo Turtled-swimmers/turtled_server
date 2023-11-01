@@ -12,6 +12,10 @@ class UserRepository(Repository[User]):
         result = await session.execute(select(User).where(User.email == email))
         return result.scalars().one_or_none()
 
+    async def find_by_user(self, session: AsyncSession, user_id: str):
+        result = await session.execute(select(User).where(User.id == user_id))
+        return result.scalars().one_or_none()
+
 
 class UserDeviceRepository(Repository[UserDevice]):
     async def find_by_device_token(self, session: AsyncSession, device_token: str):

@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import and_, desc, select, asc
+from sqlalchemy import and_, desc, select, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -64,6 +64,15 @@ class ChallengeRecordRepository(Repository[ChallengeRecord]):
             .order_by(asc(ChallengeRecord.start_time))
         )
         return result.scalars().all()
+
+    async def find_all_by_device_id(self, session: AsyncSession, device_id: str):
+        result = await session.execute(
+            select(func.count('*')).select_from(ChallengeRecord)
+            .where(
+                    ChallengeRecord.device_id == device_id,
+            )
+        )
+        return result.scalars().one_or_none()
 
 class PredictRecordRepository(Repository[PredictRecord]):
     async def find_all_by_user(self, session: AsyncSession, user_id: str):

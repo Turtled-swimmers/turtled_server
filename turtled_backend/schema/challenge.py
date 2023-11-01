@@ -32,8 +32,8 @@ class UserChallenge(Base):
     medal = relationship("Medal", backref=backref("UserChallenge"))
 
     @staticmethod
-    def of(user_id: str, medal_id: str):
-        return UserChallenge(user_id=user_id, medal_id=medal_id)
+    def of(user_id: str, medal_id: str, is_achieved: bool = False):
+        return UserChallenge(user_id=user_id, medal_id=medal_id, isAchieved=is_achieved)
 
 
 class CalenderRecordList(Base):

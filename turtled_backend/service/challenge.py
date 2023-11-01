@@ -20,7 +20,7 @@ from turtled_backend.repository.challenge import (
     ChallengeRecordRepository,
 )
 from turtled_backend.repository.user import UserDeviceRepository
-from turtled_backend.schema.challenge import CalenderRecordList, Medal
+from turtled_backend.schema.challenge import CalenderRecordList, UserChallenge
 from turtled_backend.model.request.challenge import MedalCheckRequest
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 
@@ -92,4 +92,15 @@ class ChallengeService:
         if medal is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
 
+        challenge_count = await self.challenge_record_repository.find_all_by_device_id(session, req.device_token)
 
+        is_achieved = False
+        if challenge_count > 0:
+            user.update(medal_id=medal.id)
+            is_achieved = True
+            await self.user_challenge_repository.save(session, UserChallenge.of(
+                user_id=subject.id,
+                medal_id=medal.id,
+                is_achieved=True))
+
+        return MedalCheckResponse(is_achieved=is_achieved)
