@@ -104,3 +104,16 @@ class ChallengeService:
                 is_achieved=True))
 
         return MedalCheckResponse(is_achieved=is_achieved)
+
+
+    @transactional()
+    async def change_medal(self, session: AsyncSession, subject: UserRequest, req: MedalCheckRequest):
+        user = await self.user_repository.find_by_id(session, subject.id)
+        if user is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
+
+        medal = await self.medal_repository.find_by_id(session, req.medal_id)
+        if medal is None:
+            raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "Medal not found")
+
+        return user.update(medal_id=medal.id)

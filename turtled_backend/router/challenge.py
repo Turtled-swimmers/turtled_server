@@ -39,3 +39,7 @@ class ChallengeRouter:
     @router.post("/check_medal", response_model=MedalCheckResponse)
     async def check_medal_achieved(self, subject: CurrentUser, req: MedalCheckRequest):
         return await self.challenge_service.check_medal_achieved(subject, req)
+
+    @router.post("/change_medal")
+    async def change_medal(self, subject: CurrentUser, req: MedalCheckRequest):
+        return await self.challenge_service.check_medal_achieved(subject, req)

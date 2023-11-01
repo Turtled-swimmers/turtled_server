@@ -94,6 +94,6 @@ class PredictRecord(Base):
 
 class ExerciseList(Base):
     id = Column(String(length=255), primary_key=True, default=lambda: str(ULID()))
-    description = Column(String(length=50))
+    description = Column(String(length=5000))
     img_url = Column(String(length=5000))
     percentage = Column(Integer)
