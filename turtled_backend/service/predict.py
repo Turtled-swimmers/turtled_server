@@ -49,7 +49,17 @@ class PredictService:
         except Exception as e:
             raise NotFoundException(ErrorCode.ROW_ALREADY_EXIST, "S3 image upload failed.")
 
-        return PredictResponse.of(percentage=percentage, image=target_image)
+        if percentage > 44:
+            exercise_image_list = await self.exercise_list_repository.find_by_percentage(session, 90)
+        else:
+            exercise_image_list = await self.exercise_list_repository.find_by_percentage(session, 20)
+
+        exercise_images = [{"url": exercise.img_url, "content": exercise.description}
+                           for exercise in exercise_image_list]
+
+        return PredictResponse.of(percentage=percentage,
+                                  image=target_image,
+                                  exercise_images=exercise_images)
 
     @transactional()
     async def user_upload_file(self, session: AsyncSession, servey_video: UploadFile, subject: UserRequest):
@@ -87,8 +97,17 @@ class PredictService:
             ),
         )
 
+        if predict_record.nerd_neck_percentage > 44:
+            exercise_image_list = await self.exercise_list_repository.find_by_percentage(session, 90)
+        else:
+            exercise_image_list = await self.exercise_list_repository.find_by_percentage(session, 20)
+
+        exercise_images = [{"url": exercise.img_url, "content": exercise.description}
+                           for exercise in exercise_image_list]
+
         return PredictResponse.of(percentage=percentage,
-                                  image=target_image)
+                                  image=target_image,
+                                  exercise_images=exercise_images)
 
     @transactional(read_only=True)
     async def find_predict_history(self, session: AsyncSession, subject: UserRequest):
@@ -125,7 +144,7 @@ class PredictService:
         else:
             exercise_image_list = await self.exercise_list_repository.find_by_percentage(session, 20)
 
-        exercise_images = [{"image": exercise.img_url, "description": exercise.description}
+        exercise_images = [{"url": exercise.img_url, "content": exercise.description}
                            for exercise in exercise_image_list]
-        print("LOG:", exercise_images)
+
         return PredictRecordDetailResponse.of(predict_record.nerd_neck_percentage, predict_record.img_url, exercise_images)
