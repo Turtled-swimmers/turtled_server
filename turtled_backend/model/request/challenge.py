@@ -7,3 +7,6 @@ class MedalCheckRequest(BaseModel):
     medal_id: str
     device_token: str
 
+
+class MedalChangeRequest(BaseModel):
+    medal_id: str

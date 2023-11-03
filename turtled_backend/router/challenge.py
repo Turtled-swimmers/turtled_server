@@ -6,7 +6,7 @@ from fastapi_utils.cbv import cbv
 
 from turtled_backend.common.util.auth import CurrentUser
 from turtled_backend.container import Container
-from turtled_backend.model.request.challenge import MedalCheckRequest
+from turtled_backend.model.request.challenge import MedalCheckRequest, MedalChangeRequest
 from turtled_backend.model.response.challenge import (
     CalendarEventResponse,
     ChallengeResponse,
@@ -41,5 +41,5 @@ class ChallengeRouter:
         return await self.challenge_service.check_medal_achieved(subject, req)
 
     @router.post("/change_medal")
-    async def change_medal(self, subject: CurrentUser, req: MedalCheckRequest):
-        return await self.challenge_service.check_medal_achieved(subject, req)
+    async def change_medal(self, subject: CurrentUser, req: MedalChangeRequest):
+        return await self.challenge_service.change_medal(subject, req)

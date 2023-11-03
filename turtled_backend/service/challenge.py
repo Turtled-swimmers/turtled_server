@@ -11,7 +11,7 @@ from turtled_backend.model.response.challenge import (
     CalendarEventResponse,
     ChallengeResponse,
     DateHistoryResponse,
-    MedalCheckResponse
+    MedalCheckResponse,
 )
 from turtled_backend.repository.challenge import (
     CalenderRecordListRepository,
@@ -21,7 +21,7 @@ from turtled_backend.repository.challenge import (
 )
 from turtled_backend.repository.user import UserDeviceRepository
 from turtled_backend.schema.challenge import CalenderRecordList, UserChallenge
-from turtled_backend.model.request.challenge import MedalCheckRequest
+from turtled_backend.model.request.challenge import MedalCheckRequest, MedalChangeRequest
 from turtled_backend.common.error.exception import ErrorCode, NotFoundException
 
 class ChallengeService:
@@ -107,7 +107,7 @@ class ChallengeService:
 
 
     @transactional()
-    async def change_medal(self, session: AsyncSession, subject: UserRequest, req: MedalCheckRequest):
+    async def change_medal(self, session: AsyncSession, subject: UserRequest, req: MedalChangeRequest):
         user = await self.user_repository.find_by_id(session, subject.id)
         if user is None:
             raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST, "User not found")
