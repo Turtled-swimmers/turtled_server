@@ -98,8 +98,8 @@ class UserService:
             medal = await self.medal_repository.find_by_id(session, user.medal_id)
             if medal is None:
                 raise NotFoundException(ErrorCode.DATA_DOES_NOT_EXIST,"Medal not found")
-            title = medal.image
-            image = medal.title
+            title = medal.title
+            image = medal.image
 
         return UserProfileMedalResponse(title=title, image=image)
 
